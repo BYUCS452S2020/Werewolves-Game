@@ -1,10 +1,10 @@
 # Werewolves-Game
 
-Werewolves Game(Like Mafia but Asian version)
+## Werewolves Game(Like Mafia but Asian version)
 
-The best game to play during quarantine!
+## The best game to play during quarantine!
 
-Project description
+## Project description
 
 Quarantine time has made many people crazy =)
 The best way to destress is to play games and interact with other humans. This game is designed to be highly interactive and maybe for some their first time hearing a person’s voice in the summer!
@@ -23,24 +23,21 @@ Game ends when an objective is reached. Either werewolves win or civilians win.
 
 Potential Prototype: This might be made as an app or a web app. Up for discussion in pros and cons
 
-Team
+## Team
 I'm looking for one to two other people to join the team. (Zhi-hao has agreed to join)
 
-SQL
+## SQL
 
 There will be thee database tables
 User Login Info
 Character Info
 Updated Game Info
 
-No-SQL 
+## No-SQL 
 
 Leaning towards using a column family database. But, not exactly sure specifics.
 
- 
-
-
-Business 
+## Business 
 
 This will be a two tiered business. 
 
@@ -52,31 +49,13 @@ More users and characters allowed
 
 We plan to have a prototype that works in git pages and then expand when we have enough sponsors and funding.
 
-Legal 
+## Legal 
 
 The business will be a Taiwan LLC. 
 
-Technical 
+## Technical 
 
 Our priorities will be: 
 1. Choose an initial SQL database for a github page
 2. Choose both client-side and server-side programming languages
 3. Choose appropriate framework for our client
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
