@@ -24,7 +24,7 @@ Game ends when an objective is reached. Either werewolves win or civilians win.
 Potential Prototype: This might be made as an app or a web app. Up for discussion in pros and cons
 
 ## Team
-I'm looking for one to two other people to join the team. (Zhi-hao has agreed to join)
+I'm looking for one to two other people to join the team. (Zhi-hao and Jordi have agreed to join)
 
 ## SQL
 
