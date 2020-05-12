@@ -1,6 +1,5 @@
 module.exports = app => {
     const characters = require("../controllers/character.controller.js");
-    console.log("in the route");
     
     // Create a new Customer
     app.post("/characters", characters.create);

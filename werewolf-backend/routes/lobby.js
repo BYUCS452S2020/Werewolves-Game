@@ -10,23 +10,13 @@ app.get('/', (req, res) => {
 let interval;
 
 io.on('connection', (socket) => {
-    console.log("New client connected");
-    if (interval) {
-      clearInterval(interval);
-    }
-    interval = setInterval(() => getApiAndEmit(socket), 1000);
-    socket.on("disconnect", () => {
-      console.log("Client disconnected");
-      clearInterval(interval);
-    });
+  console.log(socket.id);
+
+  socket.on('SEND_MESSAGE', function(data){
+      io.emit('RECEIVE_MESSAGE', data);
+  })
 });
   
-const getApiAndEmit = socket => {
-    const response = new Date();
-    // Emitting a new message. Will be consumed by the client
-    socket.emit("FromAPI", response);
-};
-    
 
 http.listen(4002, () => {
   console.log('listening on *:4002');
