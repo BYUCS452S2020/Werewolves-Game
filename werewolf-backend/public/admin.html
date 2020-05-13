@@ -24,7 +24,7 @@
         <p>Detail
           <input v-model="detail">
         </p>
-        <button @click="upload">Add Character</button></p>
+        <button :disabled="!name" @click="upload">Add Character</button></p>
       </div>
     </div>
     <div class="heading">
@@ -32,7 +32,7 @@
     </div>
     <div class="character" v-for="character in characters">
       <p><span class="glyphicon glyphicon-remove" v-on:click="deleteItem(character)"></span>
-        Name: {{character.name}} - Good: {{character.price}} - Detail: {{character.detail}}
+        Name: {{character.name}} - Good: {{character.side}} - Detail: {{character.detail}}
         <img style="vertical-align:middle" :src="character.path" /></p>
     </div>
 

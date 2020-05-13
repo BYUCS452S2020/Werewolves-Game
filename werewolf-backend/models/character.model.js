@@ -1,4 +1,7 @@
-const sql = require("./db.js");
+const db = require("./db.js");
+const sqlite3 = require('sqlite3').verbose();
+const path = require('path');
+const dbPath = path.resolve(__dirname, 'werewolves.db');
 
 // constructor
 const Character = function(character) {
@@ -9,7 +12,9 @@ const Character = function(character) {
 };
 
 Character.create = (newCharacter, result) => {
-  sql.query("INSERT INTO characters SET ?", newCharacter, (err, res) => {
+  const sql = new sqlite3.Database(dbPath);
+  console.log(newCharacter);
+  sql.run("INSERT or IGNORE INTO characters (name, side, ability, detail) VALUES (?,?,?,?)", newCharacter.name, newCharacter.side, newCharacter.ability, newCharacter.detail, (err, res) => {
     if (err) {
       console.log("error: ", err);
       result(err, null);
@@ -19,10 +24,12 @@ Character.create = (newCharacter, result) => {
     console.log("created character: ", { ...newCharacter });
     result(null, { ...newCharacter });
   });
+  sql.close();
 };
 
 Character.findByName = (name, result) => {
-  sql.query(`SELECT * FROM characters WHERE name = ${name}`, (err, res) => {
+  const sql = new sqlite3.Database(dbPath);
+  sql.run(`SELECT * FROM characters WHERE name = ${name}`, (err, res) => {
     if (err) {
       console.log("error: ", err);
       result(err, null);
@@ -38,23 +45,27 @@ Character.findByName = (name, result) => {
     // not found Character with the name
     result({ kind: "not_found" }, null);
   });
+  sql.close();
 };
 
 Character.getAll = result => {
-  sql.query("SELECT * FROM characters", (err, res) => {
+  const sql = new sqlite3.Database(dbPath);
+  sql.all("SELECT * FROM characters", (err, res) => {
     if (err) {
       console.log("error: ", err);
-      result(null, err);
+      result(null, {err: err});
       return;
     }
 
     console.log("characters: ", res);
-    result(null, res);
+    result(null, { ...res});
   });
+  sql.close();
 };
 
 Character.updateByName = (name, character, result) => {
-  sql.query(
+  const sql = new sqlite3.Database(dbPath);
+  sql.run(
     "UPDATE characters SET side = ?, ability = ?, detail = ? WHERE name = ?",
     [character.side, character.ability, character.detail, character.name],
     (err, res) => {
@@ -74,17 +85,19 @@ Character.updateByName = (name, character, result) => {
       result(null, { name: name, ...character });
     }
   );
+  sql.close();
 };
 
 Character.remove = (name, result) => {
-  sql.query("DELETE FROM characters WHERE name = ?", name, (err, res) => {
+  const sql = new sqlite3.Database(dbPath);
+  sql.run("DELETE FROM characters WHERE name = ?", name, (err, res) => {
     if (err) {
       console.log("error: ", err);
       result(null, err);
       return;
     }
 
-    if (res.affectedRows == 0) {
+    if (res == 0) {
       // not found Character with the name
       result({ kind: "not_found" }, null);
       return;
@@ -93,19 +106,22 @@ Character.remove = (name, result) => {
     console.log("deleted character with name: ", name);
     result(null, res);
   });
+  sql.close();
 };
 
 Character.removeAll = result => {
-  sql.query("DELETE FROM characters", (err, res) => {
+  const sql = new sqlite3.Database(dbPath);
+  sql.run("DELETE FROM characters", (err, res) => {
     if (err) {
       console.log("error: ", err);
       result(null, err);
       return;
     }
 
-    console.log(`deleted ${res.affectedRows} characters`);
+    console.log(`deleted ${res} characters`);
     result(null, res);
   });
+  sql.close();
 };
 
 module.exports = Character;
