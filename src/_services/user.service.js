@@ -1,6 +1,6 @@
 import { authHeader } from '../_helpers';
 
-const apiUrl = "https:localhost:8000";
+const apiUrl = "";
 
 export const userService = {
     login,
