@@ -51,7 +51,7 @@ function LoginPage() {
 
     return (
         <div >
-            <h1 style = {increaseSize1}>Login</h1>
+            <h1 style = {increaseSize1}>Welcome!</h1>
             <form name="form" onSubmit={handleSubmit}>
                 <div className="form-group" >
                     <label>Username</label>
