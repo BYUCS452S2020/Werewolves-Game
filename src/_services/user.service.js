@@ -21,7 +21,7 @@ function login(username, password) {
     };
 
     return fetch(`${apiUrl}/users/authenticate`, requestOptions)
-        //.then(handleResponse)
+        .then(handleResponse)
         .then(user => {
             // store user details and jwt token in local storage to keep user logged in between page refreshes
             localStorage.setItem('user', JSON.stringify(user));
@@ -61,7 +61,7 @@ function register(user) {
         body: JSON.stringify(user)
     };
 
-    return fetch(`${apiUrl}/users/register`, requestOptions);//.then(handleResponse);
+    return fetch(`${apiUrl}/users/register`, requestOptions).then(handleResponse);
 }
 
 function update(user) {
