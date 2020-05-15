@@ -66,7 +66,7 @@ function HomePage() {
                 
                 </p>
             </div>
-            <h2>Welcome {user.firstName}!!!</h2>
+            {/* <h2>Welcome {user.firstName}!!!</h2>
             <p>This is the Lobby</p>
             <h3>All registered users:</h3>
             {users.loading && <em>Loading users...</em>}
@@ -87,7 +87,7 @@ function HomePage() {
             }
             <p>
                 <Link to="/login">Logout</Link>
-            </p>
+            </p> */}
         </div>
     );
 }
