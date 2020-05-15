@@ -15,24 +15,19 @@ app.use(bodyParser.json());
 app.use(cors());
 
 // set up sqlite3 db
-console.log("set up db");
 db.setup();
 
 // use JWT auth to secure the api
-console.log("use JWT auth to secure the api");
 app.use(jwt());
 
 // api routes
-console.log("set up routes");
 app.use('/users', require('./server/routes/user.route'));
 app.use('/characters', require('./server/routes/character.route'));
 
 // global error handler
-console.log("implement the error handler")
 app.use(errorHandler);
 
 // start server
-console.log("set up the port 8000");
 const port = process.env.NODE_ENV === 'production' ? (process.env.PORT || 80) : 8000;
 const server = app.listen(port, function () {
     console.log('Server listening on port ' + port);

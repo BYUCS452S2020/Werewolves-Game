@@ -35,16 +35,16 @@ async function create(userParam) {
     if (await User.findByName({ username: userParam.username })) {
         throw 'Username "' + userParam.username + '" is already taken';
     }
-
+    
     const user = new User(userParam);
 
     // hash password
     if (userParam.password) {
-        user.hash = bcrypt.hashSync(userParam.password, 10);
+        user.password = bcrypt.hashSync(userParam.password, 10);
     }
 
     // save user
-    await user.save();
+    await User.create(user);
 }
 
 async function _delete(username) {

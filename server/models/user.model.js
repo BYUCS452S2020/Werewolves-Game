@@ -10,9 +10,10 @@ const User = function(user) {
 };
 
 User.create = (newUser, result) => {
+  console.log("in create");
   const sql = new sqlite3.Database(dbPath);
   console.log(newUser);
-  sql.run("INSERT or IGNORE INTO users (Username, Password, Email) VALUES (?,?,?)", newUser.username, newUser.password, newUser.email, (err, res) => {
+  sql.run("INSERT or IGNORE INTO users (username, password, email) VALUES (?,?,?)", newUser.username, newUser.password, newUser.email, (err, res) => {
     if (err) {
       console.log("error: ", err);
       result(err, null);
@@ -27,7 +28,7 @@ User.create = (newUser, result) => {
 
 User.findByName = (username, result) => {
   const sql = new sqlite3.Database(dbPath);
-  sql.run(`SELECT * FROM users WHERE Username = ${username}`, (err, res) => {
+  sql.run(`SELECT * FROM users WHERE username = ${username}`, (err, res) => {
     if (err) {
       console.log("error: ", err);
       result(err, null);
@@ -64,7 +65,7 @@ User.getAll = result => {
 User.updateByName = (name, user, result) => {
   const sql = new sqlite3.Database(dbPath);
   sql.run(
-    "UPDATE users SET Password = ?, Email = ? WHERE Username = ?",
+    "UPDATE users SET password = ?, email = ? WHERE username = ?",
     [user.password, user.email, user.username],
     (err, res) => {
       if (err) {
@@ -88,7 +89,7 @@ User.updateByName = (name, user, result) => {
 
 User.remove = (username, result) => {
   const sql = new sqlite3.Database(dbPath);
-  sql.run("DELETE FROM users WHERE Username = ?", username, (err, res) => {
+  sql.run("DELETE FROM users WHERE username = ?", username, (err, res) => {
     if (err) {
       console.log("error: ", err);
       result(null, err);

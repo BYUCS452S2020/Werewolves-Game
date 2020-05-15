@@ -1,6 +1,6 @@
 import { authHeader } from '../_helpers';
 
-const apiUrl = "https:localhost:8000";
+const apiUrl = "";
 
 export const userService = {
     login,
@@ -21,7 +21,7 @@ function login(username, password) {
     };
 
     return fetch(`${apiUrl}/users/authenticate`, requestOptions)
-        //.then(handleResponse)
+        .then(handleResponse)
         .then(user => {
             // store user details and jwt token in local storage to keep user logged in between page refreshes
             localStorage.setItem('user', JSON.stringify(user));
@@ -60,8 +60,9 @@ function register(user) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(user)
     };
+    console.log(user);
 
-    return fetch(`${apiUrl}/users/register`, requestOptions);//.then(handleResponse);
+    return fetch(`${apiUrl}/users/register`, requestOptions).then(handleResponse);
 }
 
 function update(user) {
@@ -85,6 +86,7 @@ function _delete(id) {
 }
 
 function handleResponse(response) {
+    console.log(response);
     return response.text().then(text => {
         const data = text && JSON.parse(text);
         if (!response.ok) {
