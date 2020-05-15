@@ -25,7 +25,9 @@ function register(req, res, next) {
 
 function getAll(req, res, next) {
     users.getAll()
-        .then(users => res.json(users))
+        // .then(users => res.json(users))
+        .then(res => res.text())   
+        .then(text => console.log(text))
         .catch(err => next(err));
 }
 
