@@ -28,7 +28,7 @@ Character.create = (newCharacter, result) => {
 
 Character.findByname = (name, result) => {
   const sql = new sqlite3.Database(dbPath);
-  sql.run(`SELECT * FROM characters WHERE name = ${name}`, (err, res) => {
+  sql.run(`SELECT * FROM characters WHERE name = \'${name}\'`, (err, res) => {
     if (err) {
       console.log("error: ", err);
       result(err, null);

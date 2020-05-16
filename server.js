@@ -8,11 +8,13 @@ const errorHandler = require('_helpers/error-handler');
 const path = require('path');
 const serveStatic = require('serve-static');
 const db = require('./server/models/db');
+var logger = require('morgan');
 
 app.use(serveStatic(path.join(__dirname, 'dist')))
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(cors());
+app.use(logger('dev'));
 
 // set up sqlite3 db
 db.setup();

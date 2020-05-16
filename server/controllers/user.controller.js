@@ -11,8 +11,8 @@ module.exports = {
     delete: _delete
 };
 
-async function authenticate({ username, password }) {
-    const user = await User.findByName({ username });
+function authenticate({ username, password }) {
+    const user = User.findByName({ username });
     if (user && bcrypt.compareSync(password, user.hash)) {
         const token = jwt.sign({ sub: user.id }, config.secret);
         return {
@@ -22,33 +22,43 @@ async function authenticate({ username, password }) {
     }
 }
 
-async function getAll() {
-    return await User.getAll();
+function getAll() {
+    return User.getAll();
 }
 
-async function getByName(username) {
-    return await User.findByName(username);
+function getByName(username) {
+    return User.findByName(username);
 }
 
-async function create(userParam) {
+function create(userParam) {
+    // console.log("in controller create");
     // validate
-    if (await User.findByName({ username: userParam.username })) {
+    let result;
+    if (result = User.findByName(userParam.username)) {
         throw 'Username "' + userParam.username + '" is already taken';
     }
+    // console.log({...result});
     
     const user = new User(userParam);
-
     // hash password
     if (userParam.password) {
         user.password = bcrypt.hashSync(userParam.password, 10);
     }
+    // console.log("user: ");
+    // console.log({...user});
 
     // save user
-    await User.create(user);
+    try {
+        result = User.create(user);
+        console.log(result);
+        // console.log("end controller create");
+    } catch (err) {
+        throw 'err: ' + err;
+    }
 }
 
-async function _delete(username) {
-    await User.remove(username);
+function _delete(username) {
+ User.remove(username);
 }
 
 // const User = require("../models/user.model.js");
