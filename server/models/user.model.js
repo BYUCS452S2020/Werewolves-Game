@@ -1,6 +1,6 @@
-let sqlite3 = require('sqlite3').verbose();
-let path = require('path');
-let dbPath = path.resolve(__dirname, 'werewolves.db');
+const sqlite3 = require('sqlite3').verbose();
+const path = require('path');
+const dbPath = path.resolve(__dirname, 'werewolves.db');
 
 // constructor
 const User = function(user) {
@@ -9,11 +9,9 @@ const User = function(user) {
   this.email = user.email;
 };
 
-User.create = async (newUser, result) => {
-  console.log("in create");
-  console.log(newUser);
-  let db = new sqlite3.Database(dbPath);
-  await db.run(`INSERT or IGNORE INTO users (username, password, email) VALUES ('${newUser.username}','${newUser.password}','${newUser.email}')` , (err, res) => {
+User.create = (newUser, result) => {
+  const db = new sqlite3.Database(dbPath);
+  db.run("INSERT or IGNORE INTO users (username, password, email) VALUES (?,?,?)", newUser.username, newUser.password, newUser.email, (err, res) => {
     if (err) {
       console.log("error: ", err);
       result(err, null);
@@ -23,42 +21,34 @@ User.create = async (newUser, result) => {
     console.log("created user: ", { ...newUser });
     result(null, { ...newUser });
   });
-  console.log(result);
-  console.log("end create");
-  await db.close();
+  db.close();
 };
 
-User.findByName = async (username, result) => {
-  console.log("in findByName");
-  let db = new sqlite3.Database(dbPath);
-  db.serialize(() => {
-    db.get(`SELECT * FROM users WHERE username = "${username}"`, (err, res) => {
-      console.log("in run findByName");
-      if (err) {
-        console.log("error: ", err);
-        result(err, null);
-        return;
-      }
-      console.log(res);
-      if (res) {
-        console.log("found user: ", res);
-        result(null, res);
-        return;
-      }
-      console.log("user not found");
-      // not found user with the username
-      result({ kind: "not_found" }, null);
-    }).close();
+User.findByName = (username, result) => {
+  console.log(username);
+  const db = new sqlite3.Database(dbPath);
+  db.get("SELECT * FROM users WHERE username = ?", username, (err, res) => {
+    if (err) {
+      console.log("error: ", err);
+      result(err, null);
+      return;
+    }
+    if (res) {
+      console.log("found user: ", res);
+      result(null, { ...res});
+      return;
+    }
+    
+    // not found user with the username
+    result({ kind: "not_found" }, null);
   });
-  console.log("end findByName");
-  console.log(result);
-
+  db.close();
 };
 
-User.getAll = async result => {
+User.getAll = result => {
   console.log("in getAll");
-  let db = new sqlite3.Database(dbPath);
-  await db.all("SELECT * FROM users", (err, res) => {
+  const db = new sqlite3.Database(dbPath);
+  db.all("SELECT * FROM users", (err, res) => {
     if (err) {
       console.log("error: ", err);
       result(null, {err: err});
@@ -68,13 +58,13 @@ User.getAll = async result => {
     console.log("users: ", res);
     result(null, { ...res});
   });
-  await db.close();
+  db.close();
 };
 
-User.updateByName = async (name, user, result) => {
+User.updateByName = (name, user, result) => {
   console.log("in updateByName");
-  let db = new sqlite3.Database(dbPath);
-  await db.run(
+  const db = new sqlite3.Database(dbPath);
+  db.run(
     "UPDATE users SET password = ?, email = ? WHERE username = ?",
     [user.password, user.email, user.username],
     (err, res) => {
@@ -94,13 +84,13 @@ User.updateByName = async (name, user, result) => {
       result(null, { username: username, ...user });
     }
   );
-  await db.close();
+  db.close();
 };
 
-User.remove = async (username, result) => {
+User.remove = (username, result) => {
   console.log("in remove");
-  let db = new sqlite3.Database(dbPath);
-  await db.run("DELETE FROM users WHERE username = ?", username, (err, res) => {
+  const db = new sqlite3.Database(dbPath);
+  db.run("DELETE FROM users WHERE username = ?", username, (err, res) => {
     if (err) {
       console.log("error: ", err);
       result(null, err);
@@ -116,13 +106,13 @@ User.remove = async (username, result) => {
     console.log("deleted user with username: ", username);
     result(null, res);
   });
-  await db.close();
+  db.close();
 };
 
-User.removeAll = async result => {
+User.removeAll = result => {
   console.log("in removeAll");
-  let db = new sqlite3.Database(dbPath);
-  await db.run("DELETE FROM users", (err, res) => {
+  const db = new sqlite3.Database(dbPath);
+  db.run("DELETE FROM users", (err, res) => {
     if (err) {
       console.log("error: ", err);
       result(null, err);
@@ -132,7 +122,7 @@ User.removeAll = async result => {
     console.log(`deleted ${res} users`);
     result(null, res);
   });
-  await db.close();
+  db.close();
 };
 
 module.exports = User;

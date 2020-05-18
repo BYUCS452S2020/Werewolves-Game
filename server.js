@@ -8,7 +8,7 @@ const errorHandler = require('_helpers/error-handler');
 const path = require('path');
 const serveStatic = require('serve-static');
 const db = require('./server/models/db');
-var logger = require('morgan');
+const logger = require('morgan');
 
 app.use(serveStatic(path.join(__dirname, 'dist')))
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -23,8 +23,8 @@ db.setup();
 app.use(jwt());
 
 // api routes
-app.use('/users', require('./server/routes/user.route'));
-app.use('/characters', require('./server/routes/character.route'));
+require('./server/routes/character.route')(app);
+require('./server/routes/user.route')(app);
 
 // global error handler
 app.use(errorHandler);
