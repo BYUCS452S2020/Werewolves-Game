@@ -7,13 +7,14 @@ app.get('/', (req, res) => {
   res.send('respond with a resource');
 });
 
-let interval;
+let rooms = ['room1', 'room2', 'room3'];
 
 io.on('connection', (socket) => {
   console.log(socket.id);
 
-  socket.on('SEND_MESSAGE', function(data){
-      io.emit('RECEIVE_MESSAGE', data);
+  socket.on('SEND_ROOM', function(data){
+    rooms.push(data);
+    io.emit('RECEIVE_ROOM', rooms);
   })
 });
   

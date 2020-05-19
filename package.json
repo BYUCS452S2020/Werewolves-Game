@@ -37,6 +37,7 @@
         "redux-logger": "^4.0.0",
         "redux-thunk": "^2.3.0",
         "rootpath": "^0.1.2",
+        "socket.io": "^2.3.0",
         "sqlite-async": "^1.0.12",
         "sqlite3": "^4.2.0",
         "webpack": "^4.29.6",
