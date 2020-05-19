@@ -25,7 +25,6 @@ User.create = (newUser, result) => {
 };
 
 User.findByName = (username, result) => {
-  console.log(username);
   const db = new sqlite3.Database(dbPath);
   db.get("SELECT * FROM users WHERE username = ?", username, (err, res) => {
     if (err) {

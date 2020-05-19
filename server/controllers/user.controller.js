@@ -12,24 +12,40 @@ exports.create = (req, res) => {
     res.status(400).send({
       message: "Content can not be empty!"
     });
+    return;
   }
 
-  // Create a user
-  const user = new User({
-    username: req.body.username,
-    password: req.body.password,
-    email: req.body.email
-  });
-
-  // Save User in the database
-  User.create(user, (err, data) => {
-    if (err)
-      res.status(500).send({
-        message:
-          err.message || "Some error occurred while creating the User."
+  User.findByName(req.body.username, (err,data) => {
+    // check username
+    if (data) {
+      res.status(404).send({
+        message: `Username has been taken!`
       });
-    else res.send(data);
-  });
+    }
+    else if (err.kind !== "not_found") {
+      res.status(500).send({
+        message: "Error retrieving User with username " + req.params.username
+      });
+    }
+    else {
+      // Create a user
+      const user = new User({
+        username: req.body.username,
+        password: bcrypt.hashSync(req.body.password, 10),
+        email: req.body.email
+      });
+
+      // Save User in the database
+      User.create(user, (err, data) => {
+        if (err)
+          res.status(500).send({
+            message:
+              err.message || "Some error occurred while creating the User."
+          });
+        else res.send(data);
+      });
+    }
+  }) 
 };
 
 // Retrieve all Users from the database.
@@ -46,6 +62,7 @@ exports.findAll = (req, res) => {
 
 // Find a single User with a username
 exports.findOne = (req, res) => {
+  console.log("header: ", req.header);
   var authHeader = req.headers.authorization;
     if(!authHeader){
         var err = new Error("you could not be authorized");
@@ -59,7 +76,7 @@ exports.findOne = (req, res) => {
     if (err) {
       if (err.kind === "not_found") {
         res.status(404).send({
-          message: `Not found User with username ${req.params.username}.`
+          message: `Not found User with the username.`
         });
       } else {
         res.status(500).send({
@@ -70,14 +87,14 @@ exports.findOne = (req, res) => {
   });
 };
 
-// Find a single User with a username
-exports.login = (req, res) => {
+// Authenticate User
+exports.authenticate = (req, res) => {
   console.log("req.body: ", req.body);
   User.findByName(req.body.username, (err, data) => {
     if (err) {
       if (err.kind === "not_found") {
         res.status(404).send({
-          message: `Not found User with username ${req.params.username}.`
+          message: `Not found User with the username.`
         });
       } else {
         res.status(500).send({
@@ -86,7 +103,6 @@ exports.login = (req, res) => {
       }
     }
     else {
-      console.log("data: ", data);
       if (bcrypt.compareSync(req.body.password, data.password)) {
           const token = jwt.sign({ sub: data.username }, config.secret);
           console.log(token);
@@ -97,7 +113,7 @@ exports.login = (req, res) => {
           res.send(result);
           return;
       }
-      res.status(401).send({
+      res.status(404).send({
         message: "Wrong password with username " + req.params.username
       });
     }
