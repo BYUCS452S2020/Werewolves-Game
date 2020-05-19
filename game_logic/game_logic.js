@@ -6,45 +6,36 @@ var gameover = false;  // boolean value to indicate if the game is over
 const GameManager = require('./game_manager.js')
 let gameManager = new GameManager()
 
-// //in order to read line, good for debuggin on the console
-// const readline = require('readline');
+var cmd = require('node-stdio');
 
-// const rl = readline.createInterface({
-//   input: process.stdin,
-//   output: process.stdout
-// });
 
 console.log('Welcome to the village!');
 
+console.log('Please input the number of players(6)');
 
+var playersNum = cmd.readInt();
 
-// rl.question('How many players shall be instantiated? ', (answer) => {
-//   // TODO: Log the answer in a database
-//   console.log(`Thank you for your valuable feedback: ${answer}`);
-
-//   rl.close();
-// });
-
-async function askQ () {
-	const answer = await ask('How many players shall be in the game?');
-}
-
-askQ();
+gameManager.game_init(playersNum);
+	
+assign_character();
 
 while(gameover == false){
 	
 	
 	
-	assign_character();
+	gameManager.show_characters();
 	
 	console.log('Let\' go to sleep!');
 	
+	
+	
 	kill_character();
 	
-	console.log('');
 	
-	gameover = true
+	gameover = check_for_game_over();
 }
+
+gameManager.show_characters();
 
 function assign_character(){
 	console.log('assigning characters');
@@ -53,7 +44,10 @@ function assign_character(){
 
 //to kill off a character
 function kill_character(){
-	console.log('Killing a character');
+	console.log('Which character do you want to kill?');
+	let characterID = cmd.readInt();
+	gameManager.kill_character(characterID);
+	console.log(`Killing character ${characterID}`);
 }
 
 
@@ -63,4 +57,9 @@ function debate(){
 
 function vote(){
 	console.log('voting to see who die');
+}
+
+function check_for_game_over(){
+	return gameManager.game_over();
+	
 }
