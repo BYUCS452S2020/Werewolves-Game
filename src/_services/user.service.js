@@ -60,12 +60,8 @@ function register(user) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(user)
     };
-<<<<<<< HEAD
-    console.log(requestOptions);
-=======
     console.log(user);
 
->>>>>>> df534ff9b06cdfc813d1e4607e6a27cedb58e441
     return fetch(`${apiUrl}/users/register`, requestOptions).then(handleResponse);
 }
 
