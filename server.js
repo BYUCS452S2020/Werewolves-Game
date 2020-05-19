@@ -8,31 +8,28 @@ const errorHandler = require('_helpers/error-handler');
 const path = require('path');
 const serveStatic = require('serve-static');
 const db = require('./server/models/db');
+const logger = require('morgan');
 
 app.use(serveStatic(path.join(__dirname, 'dist')))
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(cors());
+app.use(logger('dev'));
 
 // set up sqlite3 db
-console.log("set up db");
 db.setup();
 
 // use JWT auth to secure the api
-console.log("use JWT auth to secure the api");
 app.use(jwt());
 
 // api routes
-console.log("set up routes");
-app.use('/users', require('./server/routes/user.route'));
-app.use('/characters', require('./server/routes/character.route'));
+require('./server/routes/character.route')(app);
+require('./server/routes/user.route')(app);
 
 // global error handler
-console.log("implement the error handler")
 app.use(errorHandler);
 
 // start server
-console.log("set up the port 8000");
 const port = process.env.NODE_ENV === 'production' ? (process.env.PORT || 80) : 8000;
 const server = app.listen(port, function () {
     console.log('Server listening on port ' + port);
