@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 const express = require('express');
 const router = express.Router();
 const users = require("../controllers/user.controller.js");
@@ -44,26 +45,15 @@ function _delete(req, res, next) {
 }
 // module.exports = app => {
 //     const users = require("../controllers/user.controller.js");
+=======
+module.exports = app => {
+    const users = require("../controllers/user.controller.js");
+>>>>>>> df534ff9b06cdfc813d1e4607e6a27cedb58e441
     
-//     // Create a new User
-//     app.post("/users/register", users.register);
-  
-//     // Retrieve all Users
-//     app.get("/users", users.findAll);
-
-//     // Retrieve a single User with Username
-//     app.get("/users/authenticate", users.login);
-  
-//     // Retrieve a single User with Username
-//     app.get("/users/:username", users.findOne);
-  
-//     // Update a User with Username
-//     app.put("/users/:username", users.update);
-  
-//     // Delete a User with Username
-//     app.delete("/users/:username", users.delete);
-  
-//     // Create a new User
-//     app.delete("/users", users.deleteAll);
-//   };
+    app.post('/users/authenticate', users.authenticate);
+    app.post('/users/register', users.create);
+    app.get('/users/', users.findAll);
+    app.get('/users/:username', users.findOne);
+    app.delete('/users/:username', users.delete);
+};
   

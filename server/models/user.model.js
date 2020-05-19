@@ -10,9 +10,8 @@ const User = function(user) {
 };
 
 User.create = (newUser, result) => {
-  const sql = new sqlite3.Database(dbPath);
-  console.log(newUser);
-  sql.run("INSERT or IGNORE INTO users (Username, Password, Email) VALUES (?,?,?)", newUser.username, newUser.password, newUser.email, (err, res) => {
+  const db = new sqlite3.Database(dbPath);
+  db.run("INSERT or IGNORE INTO users (username, password, email) VALUES (?,?,?)", newUser.username, newUser.password, newUser.email, (err, res) => {
     if (err) {
       console.log("error: ", err);
       result(err, null);
@@ -22,33 +21,33 @@ User.create = (newUser, result) => {
     console.log("created user: ", { ...newUser });
     result(null, { ...newUser });
   });
-  sql.close();
+  db.close();
 };
 
 User.findByName = (username, result) => {
-  const sql = new sqlite3.Database(dbPath);
-  sql.run(`SELECT * FROM users WHERE Username = ${username}`, (err, res) => {
+  const db = new sqlite3.Database(dbPath);
+  db.get("SELECT * FROM users WHERE username = ?", username, (err, res) => {
     if (err) {
       console.log("error: ", err);
       result(err, null);
       return;
     }
-
-    if (res.length) {
-      console.log("found user: ", res[0]);
-      result(null, res[0]);
+    if (res) {
+      console.log("found user: ", res);
+      result(null, { ...res});
       return;
     }
-
+    
     // not found user with the username
     result({ kind: "not_found" }, null);
   });
-  sql.close();
+  db.close();
 };
 
 User.getAll = result => {
-  const sql = new sqlite3.Database(dbPath);
-  sql.all("SELECT * FROM users", (err, res) => {
+  console.log("in getAll");
+  const db = new sqlite3.Database(dbPath);
+  db.all("SELECT * FROM users", (err, res) => {
     if (err) {
       console.log("error: ", err);
       result(null, {err: err});
@@ -58,13 +57,14 @@ User.getAll = result => {
     console.log("users: ", res);
     result(null, { ...res});
   });
-  sql.close();
+  db.close();
 };
 
 User.updateByName = (name, user, result) => {
-  const sql = new sqlite3.Database(dbPath);
-  sql.run(
-    "UPDATE users SET Password = ?, Email = ? WHERE Username = ?",
+  console.log("in updateByName");
+  const db = new sqlite3.Database(dbPath);
+  db.run(
+    "UPDATE users SET password = ?, email = ? WHERE username = ?",
     [user.password, user.email, user.username],
     (err, res) => {
       if (err) {
@@ -83,12 +83,13 @@ User.updateByName = (name, user, result) => {
       result(null, { username: username, ...user });
     }
   );
-  sql.close();
+  db.close();
 };
 
 User.remove = (username, result) => {
-  const sql = new sqlite3.Database(dbPath);
-  sql.run("DELETE FROM users WHERE Username = ?", username, (err, res) => {
+  console.log("in remove");
+  const db = new sqlite3.Database(dbPath);
+  db.run("DELETE FROM users WHERE username = ?", username, (err, res) => {
     if (err) {
       console.log("error: ", err);
       result(null, err);
@@ -104,12 +105,13 @@ User.remove = (username, result) => {
     console.log("deleted user with username: ", username);
     result(null, res);
   });
-  sql.close();
+  db.close();
 };
 
 User.removeAll = result => {
-  const sql = new sqlite3.Database(dbPath);
-  sql.run("DELETE FROM users", (err, res) => {
+  console.log("in removeAll");
+  const db = new sqlite3.Database(dbPath);
+  db.run("DELETE FROM users", (err, res) => {
     if (err) {
       console.log("error: ", err);
       result(null, err);
@@ -119,7 +121,7 @@ User.removeAll = result => {
     console.log(`deleted ${res} users`);
     result(null, res);
   });
-  sql.close();
+  db.close();
 };
 
 module.exports = User;

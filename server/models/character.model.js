@@ -13,7 +13,7 @@ const Character = function(character) {
 Character.create = (newCharacter, result) => {
   const sql = new sqlite3.Database(dbPath);
   console.log(newCharacter);
-  sql.run("INSERT or IGNORE INTO characters (Name, Side, Ability, Detail) VALUES (?,?,?,?)", newCharacter.name, newCharacter.side, newCharacter.ability, newCharacter.detail, (err, res) => {
+  sql.run("INSERT or IGNORE INTO characters (name, side, ability, detail) VALUES (?,?,?,?)", newCharacter.name, newCharacter.side, newCharacter.ability, newCharacter.detail, (err, res) => {
     if (err) {
       console.log("error: ", err);
       result(err, null);
@@ -26,9 +26,9 @@ Character.create = (newCharacter, result) => {
   sql.close();
 };
 
-Character.findByName = (name, result) => {
+Character.findByname = (name, result) => {
   const sql = new sqlite3.Database(dbPath);
-  sql.run(`SELECT * FROM characters WHERE Name = ${name}`, (err, res) => {
+  sql.run(`SELECT * FROM characters WHERE name = \'${name}\'`, (err, res) => {
     if (err) {
       console.log("error: ", err);
       result(err, null);
@@ -62,10 +62,10 @@ Character.getAll = result => {
   sql.close();
 };
 
-Character.updateByName = (name, character, result) => {
+Character.updateByname = (name, character, result) => {
   const sql = new sqlite3.Database(dbPath);
   sql.run(
-    "UPDATE characters SET Side = ?, Ability = ?, Detail = ? WHERE Name = ?",
+    "UPDATE characters SET side = ?, ability = ?, detail = ? WHERE name = ?",
     [character.side, character.ability, character.detail, character.name],
     (err, res) => {
       if (err) {
@@ -89,7 +89,7 @@ Character.updateByName = (name, character, result) => {
 
 Character.remove = (name, result) => {
   const sql = new sqlite3.Database(dbPath);
-  sql.run("DELETE FROM characters WHERE Name = ?", name, (err, res) => {
+  sql.run("DELETE FROM characters WHERE name = ?", name, (err, res) => {
     if (err) {
       console.log("error: ", err);
       result(null, err);

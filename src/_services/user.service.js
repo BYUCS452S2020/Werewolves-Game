@@ -7,7 +7,7 @@ export const userService = {
     logout,
     register,
     getAll,
-    getById,
+    getByName,
     update,
     delete: _delete
 };
@@ -44,13 +44,13 @@ function getAll() {
     return fetch(`${apiUrl}/users`, requestOptions).then(handleResponse);
 }
 
-function getById(id) {
+function getByName(username) {
     const requestOptions = {
         method: 'GET',
         headers: authHeader()
     };
 
-    return fetch(`${apiUrl}/users/${id}`, requestOptions).then(handleResponse);
+    return fetch(`${apiUrl}/users/${username}`, requestOptions).then(handleResponse);
 }
 
 function register(user) {
@@ -60,7 +60,12 @@ function register(user) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(user)
     };
+<<<<<<< HEAD
     console.log(requestOptions);
+=======
+    console.log(user);
+
+>>>>>>> df534ff9b06cdfc813d1e4607e6a27cedb58e441
     return fetch(`${apiUrl}/users/register`, requestOptions).then(handleResponse);
 }
 
@@ -71,17 +76,17 @@ function update(user) {
         body: JSON.stringify(user)
     };
 
-    return fetch(`${apiUrl}/users/${user.id}`, requestOptions).then(handleResponse);;
+    return fetch(`${apiUrl}/users/${user.username}`, requestOptions).then(handleResponse);;
 }
 
 // prefixed function name with underscore because delete is a reserved word in javascript
-function _delete(id) {
+function _delete(username) {
     const requestOptions = {
         method: 'DELETE',
         headers: authHeader()
     };
 
-    return fetch(`${apiUrl}/users/${id}`, requestOptions).then(handleResponse);
+    return fetch(`${apiUrl}/users/${username}`, requestOptions).then(handleResponse);
 }
 
 function handleResponse(response) {
