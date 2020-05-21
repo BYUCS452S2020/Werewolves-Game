@@ -11,6 +11,10 @@ function jwt() {
             // public routes that don't require authentication
             '/users/authenticate',
             '/users/register',
+            '/public/werewolfLogo.png',
+            '/public/wolficon.ico',
+            '/werewolf.jpg',
+            '/public/werewolf.jpg',
             '/characters'
         ]
     });

@@ -62,7 +62,13 @@ exports.findAll = (req, res) => {
 
 // Find a single User with a username
 exports.findOne = (req, res) => {
-  console.log("header: ", req.header);
+  // console.log("its in: ");
+  // console.log("yoyoy" ,jwt.verify(req.headers['authorization'], process.env.SECRET_KEY));
+  //  console.log("header: ", req.headers['authorization']);
+  //  console.log("headers" ,req.headers);
+  // console.log("body:" ,res);
+  // console.log("header2", req.authHeader);
+  
   var authHeader = req.headers.authorization;
     if(!authHeader){
         var err = new Error("you could not be authorized");

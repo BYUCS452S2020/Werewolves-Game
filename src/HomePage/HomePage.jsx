@@ -48,7 +48,7 @@ function HomePage() {
 
     return (
         <div >
-            <h1>LOBBY...</h1>
+            <h1>Welcome {user.data.username} to the LOBBY!!!</h1>
 
             <div style = {container}>
                 

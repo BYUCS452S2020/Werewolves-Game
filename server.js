@@ -29,6 +29,13 @@ require('./server/routes/user.route')(app);
 // global error handler
 app.use(errorHandler);
 
+// potential header problem
+// app.use(function(req, res, next) {
+//     res.header("Access-Control-Allow-Origin", "*");
+//     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Authorization, Content-Type, Accept");
+//     next();
+//   });
+
 // start server
 const port = process.env.NODE_ENV === 'production' ? (process.env.PORT || 80) : 8000;
 const server = app.listen(port, function () {
