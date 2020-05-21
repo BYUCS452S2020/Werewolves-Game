@@ -10,7 +10,7 @@
         "heroku-prebuild": "npm install --dev",
         "build": "webpack --mode production",
         "start": "node server.js",
-        "dev": "nodemon server.js"
+        "dev": "nodemon server.js & npx webpack"
     },
     "dependencies": {
         "@babel/core": "^7.4.3",
