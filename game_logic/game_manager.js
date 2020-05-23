@@ -12,7 +12,7 @@ class GameManager {
 		this.specialCharacters = 2;
 		this.werewolves = 2;
 		this.characterArray = [];
-		this.dict = {};
+		this.dict = ['dummy'];
   	}
 	
 	
@@ -49,27 +49,35 @@ class GameManager {
 		console.log('initizlazing all the game characters');
 		var id = 1;
 		console.log(`constructing ${this.werewolves} werewolves`);
-		for(var i = 0; i < this.werewolves; i++){
-			let werewolf = new Werewolf(id);
-			this.characterArray.push(werewolf);
-			this.dict[id] = werewolf;
+		for(let i = 0; i < this.werewolves; i++){
+			let random = Math.random() * id | 0 + 1;
+			console.log(random)
+			let werewolf = new Werewolf(random);
+			this.dict.splice(random, 0, werewolf);
+			console.log(this.dict);
+			//this.dict[id] = werewolf;
 			id++;
 		}
 		console.log(`constructing ${this.villagers} villagers`);
-		for(var i = 0; i < this.villagers; i++){
-			let villager = new Villager(id);
-			this.characterArray.push(villager);
-			this.dict[id] = villager;
+		for(let i = 0; i < this.villagers; i++){
+			let random = Math.random() * id | 0 + 1;
+			console.log(random)
+			let villager = new Villager(random);
+			this.dict.splice(random, 0, villager);
+			console.log(this.dict);
+			//this.dict[id] = villager;
 			id++;
 		}
 		console.log(`constructing ${this.specialCharacters} special characters`);
-		for(var i = 0; i < this.specialCharacters; i++){
-			let villager = new Villager(id);
-			this.characterArray.push(villager);
-			this.dict[id] = villager;
+		for(let i = 0; i < this.specialCharacters; i++){
+			let random = Math.random() * id | 0 + 1;
+			console.log(random)
+			let villager = new Villager(random);
+			this.dict.splice(random, 0, villager);
+			console.log(this.dict);
+			//this.dict[id] = villager;
 			id++;
 		}
-		
 		
 	}
 	
