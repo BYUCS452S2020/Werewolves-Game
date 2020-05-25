@@ -7,6 +7,15 @@ import styles from './LoginPage.css';
 
 function LoginPage() {
 
+    const heroText =  {
+
+        textAlign: 'center',
+        position: 'absolute',
+        marginTop: '20em',
+        left: '50%',
+        transform: 'translate(-50%, -50%)',
+        color: 'red'
+        };
     const divStyle = {
         color: "red"
     };
@@ -14,8 +23,6 @@ function LoginPage() {
         fontSize: '4em',
         position: 'relative',
         marginTop: '-.5em',
-        marginBottom: '1em',
-        marginLeft: '-.2em'
     };
     const increaseSize2 = {
         fontSize: '3em'
@@ -50,7 +57,7 @@ function LoginPage() {
     }
 
     return (
-        <div >
+        <div  style = {heroText}>
             <h1 style = {increaseSize1}>Welcome!</h1>
             <form name="form" onSubmit={handleSubmit}>
                 <div className="form-group" >

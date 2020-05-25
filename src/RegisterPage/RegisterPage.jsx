@@ -23,8 +23,17 @@ function RegisterPage() {
         fontSize: '4em',
         position: 'relative',
         marginBottom: '.5em',
-        marginLeft: '-.6em'
     };
+
+    const heroText =  {
+
+        textAlign: 'center',
+        position: 'absolute',
+        marginTop: '20em',
+        left: '50%',
+        transform: 'translate(-50%, -50%)',
+        color: 'red'
+        };
 
     // reset login status
     useEffect(() => {
@@ -46,7 +55,7 @@ function RegisterPage() {
     }
 
     return (
-        <div  style = {fixSpacing}>
+        <div  style = {heroText}>
             <h1 style = {increaseSize1}>Register</h1>
             <form name="form" onSubmit={handleSubmit}>
                 <div className="form-group">
