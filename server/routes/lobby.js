@@ -1,24 +1,23 @@
-var app = require('express')();
-var http = require('http').createServer(app);
-var io = require('socket.io')(http);
+module.exports = app => {
+  var http = require('http').createServer(app);
+  var io = require('socket.io')(http);
 
-app.get('/', (req, res) => {
-  console.log("in lobby");
-  res.send('respond with a resource');
-});
+  let rooms = ['room1', 'room2', 'room3'];
 
-let rooms = ['room1', 'room2', 'room3'];
+  io.on('connection', (socket) => {
+    console.log("client connected");
+    socket.emit('RECEIVE_ROOM', rooms);
 
-io.on('connection', (socket) => {
-  console.log(socket.id);
+    socket.on('SEND_ROOM', function (data) {
+      console.log("room: ", data);
+      rooms.push(data);
+      console.log("rooms: ", rooms);
+      io.emit('RECEIVE_ROOM', rooms);
+    })
+  });
 
-  socket.on('SEND_ROOM', function(data){
-    rooms.push(data);
-    io.emit('RECEIVE_ROOM', rooms);
-  })
-});
-  
 
-http.listen(4002, () => {
-  console.log('listening on *:4002');
-});
+  http.listen(4002, () => {
+    console.log('Lobby listening on *:4002');
+  });
+}
