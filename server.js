@@ -9,6 +9,8 @@ const path = require('path');
 const serveStatic = require('serve-static');
 const db = require('./server/models/db');
 const logger = require('morgan');
+const http = require('http').createServer(app);
+const io = require('socket.io')(http);
 
 app.use(serveStatic(path.join(__dirname, 'dist')))
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -25,6 +27,8 @@ app.use(jwt());
 // api routes
 require('./server/routes/character.route')(app);
 require('./server/routes/user.route')(app);
+require('./server/routes/lobby')(app);
+require('./server/routes/gameroom')(app);
 
 // global error handler
 app.use(errorHandler);
@@ -38,8 +42,7 @@ app.use(errorHandler);
 
 // start server
 const port = process.env.NODE_ENV === 'production' ? (process.env.PORT || 80) : 8000;
-const server = app.listen(port, function () {
-    console.log('Server listening on port ' + port);
-});
-
-require('./server/routes/lobby');
+http.listen(port, () => {
+    console.log(`listening on *:${port}`);
+  });
+  

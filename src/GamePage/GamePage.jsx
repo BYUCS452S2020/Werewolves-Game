@@ -3,14 +3,14 @@ import { Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import socketIOClient from "socket.io-client";
 const ENDPOINT = "http://127.0.0.1:4002";
-const socket = socketIOClient(ENDPOINT);
 import { userActions } from '../_actions';
 
-function HomePage() {
+function GamePage(props) {
     const user = useSelector(state => state.authentication.user);
     // const loggingOut = useSelector(state => state.authentication.loggingOut);
     const dispatch = useDispatch();
-
+    const socket = socketIOClient(ENDPOINT);
+    console.log("Room:", props.location.state.room);
     /*test */
     const [rooms, setRooms] = useState("");
     const [room, setRoom] = useState("");
@@ -69,7 +69,7 @@ function HomePage() {
 
     return (
         <div >
-            <h1>Welcome {user.data.username} to the LOBBY!!!</h1>
+            <h1>Welcome {user.data.username} to the GAME!!!</h1>
 
             <div style={container}>
 
@@ -78,20 +78,12 @@ function HomePage() {
                     <ul style={listColor}>
                         {/* <div>Welcome {user.firstName}</div> */}
                         {items.map((item, i) => (<li key={`item_${i}`}>{item}
-                            <button>
-                                <Link style={logOut2} to={{
-                                    pathname: '/game',
-                                    state: {
-                                        room: item
-                                    }
-                                    }}>Click to go to room</Link>
-                            </button>
                         </li>))}
                     </ul>
                 </div>
                 <p style={logOut}>
                     <button className="btn btn-primary">
-                        <Link style={logOut2} to="{/login}">Logout</Link>
+                        <Link style={logOut2} to="/">Leave</Link>
                     </button>
 
                 </p>
@@ -132,4 +124,4 @@ function HomePage() {
     );
 }
 
-export { HomePage };
+export { GamePage };
