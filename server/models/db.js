@@ -30,19 +30,8 @@ async function setup() {
     }
   });
 
-  // create gameTypes table
-  let q3 = 'CREATE TABLE IF NOT EXISTS gameTypes (game_name TEXT PRIMARY KEY, number_players INTEGER, characters TEXT);'
-  await db.run(q3,function(err) {
-    if (err) {
-      return console.log(err.message);
-    }
-    else {
-      //console.log(`gameTypes table created`);
-    }
-  });
-
   // create gamerooms table
-  let q4 = 'CREATE TABLE IF NOT EXISTS gamerooms (room_id INTEGER PRIMARY KEY AUTOINCREMENT, room_name INTEGER, game_name TEXT);'
+  let q4 = 'CREATE TABLE IF NOT EXISTS gamerooms (room_id INTEGER PRIMARY KEY AUTOINCREMENT, room_name TEXT);'
   await db.run(q4,function(err) {
     if (err) {
       return console.log(err.message);
@@ -78,6 +67,15 @@ async function setup() {
   
 
   await db.run("INSERT or IGNORE INTO users (username, password, email) VALUES (?,?,?)", "username", password, "email@email", (err, res) => {
+    if (err) {
+      return console.log("err: " + err);
+    }
+    else {
+      //console.log(`characters created`);
+    }
+  });
+
+  await db.run("INSERT or IGNORE INTO gamerooms (room_id, room_name) VALUES (1, \'room1\'),(2, \'room2\'),(3, \'room3\')", (err, res) => {
     if (err) {
       return console.log("err: " + err);
     }
