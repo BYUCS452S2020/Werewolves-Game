@@ -53,42 +53,42 @@ const useStyles = makeStyles((theme) => ({
 
   const tileData = [
     {
-        img: '/idiot.jpg',
+        img: './dist/idiot.jpg',
         title: 'Idiot',
         description: 'Just an idiot...',
     },
     {
-        img: '/werewolves.jpg',
+        img: './dist/werewolves.jpg',
         title: 'Werewolves',
         description: 'Wakes up at night. Vote to kill 1 person',
     },
     {
-        img: '/seer.jpg',
+        img: './dist/seer.jpg',
         title: 'Seer',
         description: 'Looks into the future. Picks 1 person to know identity',
     },
     {
-        img: '/hunter.jpg',
+        img: './dist/hunter.jpg',
         title: 'Hunter',
         description: 'Choose another player to kill upon death',
     },
     {
-        img: '/wolfKing.jpg',
+        img: './dist/wolfKing.jpg',
         title: 'Wolf King',
         description: 'Bigger Wolf... gets 2 votes',
     },
     {
-        img: '/witch.jpg',
+        img: './dist/witch.jpg',
         title: 'Witch',
         description: 'Holds 2 vials. 1 to save. 1 to poison',
     },
     {
-        img: '/knight.jpg',
+        img: './dist/knight.jpg',
         title: 'Knight',
         description: 'DayTime can challenge peoples identity',
     },
     {
-        img: '/Peasant.jpg',
+        img: './dist/Peasant.jpg',
         title: 'Peasant',
         description: 'Does nothing....',
     },
@@ -278,7 +278,7 @@ function GamePage() {
             </button>
 
             {/* title */}
-            <h1 style = {redH1}>{user.data.username}'s Character: Werewolf</h1>
+            <h1 style = {redH1}>{user.username}'s Character: Werewolf</h1>
 
             {/* Ability drop down */}
             <div>
@@ -330,7 +330,7 @@ function GamePage() {
             <div>
                 <h3 style = {listRoom}>List of Players</h3>
                 <ul style={listColor}>
-                    {items.map((item, i) => (<li style = {marginBottom} key={`item_${i}`}>{user.data.username}
+                    {items.map((item, i) => (<li style = {marginBottom} key={`item_${i}`}>{user.username}
                     </li>))}
                 </ul>
             </div>
@@ -341,7 +341,7 @@ function GamePage() {
             <div style={centerCol}>
                 <h1 style = {centerText}> Chat </h1>
             <ul style = {message}>
-                {items.map((item, i) => (<li style = {marginBottom} key={`item_${i}`}> {item} by: {user.data.username}
+                {items.map((item, i) => (<li style = {marginBottom} key={`item_${i}`}> {item} by: {user.username}
                         </li>))}
             </ul>
             </div>
