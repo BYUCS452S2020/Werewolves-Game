@@ -16,13 +16,13 @@ import Select from '@material-ui/core/Select';
 
 const useStyles = makeStyles((theme) => ({
     root: {
-      display: 'flex',
-      flexWrap: 'wrap',
-      justifyContent: 'space-around',
-      overflow: 'hidden',
-      position: 'fixed',
-      top: '8em',
-      left: '38px'
+        display: 'flex',
+        flexWrap: 'wrap',
+        justifyContent: 'space-around',
+        overflow: 'hidden',
+        position: 'fixed',
+        top: '8em',
+        left: '38px'
     },
     root2: {
         display: 'flex',
@@ -32,26 +32,26 @@ const useStyles = makeStyles((theme) => ({
         position: 'fixed',
         top: '8em',
         right: '70px'
-      },
+    },
     gridList: {
         width: '300px',
         height: '400px',
 
     },
     icon: {
-      color: 'rgba(255, 255, 255, 0.54)',
+        color: 'rgba(255, 255, 255, 0.54)',
     },
     button: {
         display: 'block',
         marginTop: theme.spacing(2),
-      },
-      formControl: {
+    },
+    formControl: {
         margin: theme.spacing(1),
         width: '300px'
-      },
-  }));
+    },
+}));
 
-  const tileData = [
+const tileData = [
     {
         img: '/idiot.jpg',
         title: 'Idiot',
@@ -96,11 +96,11 @@ const useStyles = makeStyles((theme) => ({
 
 
 const scrollData = [
-    {   
+    {
         value: "",
         description: 'None'
     },
-    {   
+    {
         value: '10',
         description: 'Vote'
     },
@@ -114,34 +114,40 @@ const scrollData = [
     },
 ];
 
-  
-function GamePage() {
+
+function GamePage(props) {
     const classes = useStyles();
 
-  const [age, setAge] = React.useState('');
-  const [open, setOpen] = React.useState(false);
+    const [age, setAge] = React.useState('');
+    const [open, setOpen] = React.useState(false);
 
-  const handleChange = (event) => {
-    setAge(event.target.value);
-  };
+    const handleChange = (event) => {
+        setAge(event.target.value);
+    };
 
-  const handleClose = () => {
-    setOpen(false);
-  };
+    const handleClose = () => {
+        setOpen(false);
+    };
 
-  const handleOpen = () => {
-    setOpen(true);
-  };
+    const handleOpen = () => {
+        setOpen(true);
+    };
 
+    const room = props.location.state.room;
     const socket = socketIOClient(ENDPOINT);
     const user = useSelector(state => state.authentication.user);
+    socket.emit("join", user.data.username, room);
     // const loggingOut = useSelector(state => state.authentication.loggingOut);
     const dispatch = useDispatch();
 
+    var temp = [];
+    socket.on("message que", data => {
+        temp = data;
+    })
     /*test */
-    const [rooms, setRooms] = useState("");
-    const [room, setRoom] = useState("");
-    var items = [...rooms].map((val, i) => `${rooms[i]}`);
+    const [msgs, setMsgs] = useState(temp);
+    const [msg, setMsg] = useState("");
+    var items = [...msgs].map((val, i) => msgs[i]);
 
     /*css for test */
     const container = {
@@ -215,7 +221,7 @@ function GamePage() {
         background: 'white',
         padding: '3px',
         position: 'fixed',
-    
+
         width: '30%'
     };
 
@@ -232,13 +238,13 @@ function GamePage() {
         border: 'black',
         paddingTop: '10px',
         paddingBottom: '10px',
-        
+
         whiteSpace: 'noWrap',
     };
 
     const message = {
-        listStyleType: 'square', 
-        margin: '10', 
+        listStyleType: 'square',
+        margin: '10',
         padding: '10'
     };
 
@@ -252,53 +258,57 @@ function GamePage() {
 
     useEffect(() => {
         dispatch(userActions.getAll());
-        handleGetRooms();
+        handleGetMsg();
     }, []);
 
-    function handleGetRooms() {
-        socket.on("RECEIVE_ROOM", data => {
-            setRooms(data);
+    function handleGetMsg() {
+        socket.on("chat message", (username, msg) => {
+            console.log("username, msg: ", username, msg);
+            temp.push({username, msg});
+            setMsgs(temp);
         });
+        console.log("msgs: ",msgs);
     }
 
     const handleSubmit = e => {
         e.preventDefault();
-        if (!room) {
-            return alert("room can't be empty");
+        if (!msg) {
+            return alert("msg can't be empty");
         }
-        socket.emit("SEND_ROOM", room);
+        socket.emit("chat message", msg, room);
     };
 
 
+
     return (
-        <div style = {center}>
+        <div style={center}>
             {/* logout button */}
             <button className="btn btn-primary" style={logOut}>
                 <Link style={logOut2} to="/">Go Back</Link>
             </button>
 
             {/* title */}
-            <h1 style = {redH1}>{user.data.username}'s Character: Werewolf</h1>
+            <h1 style={redH1}>{user.data.username}'s Character: Werewolf</h1>
 
             {/* Ability drop down */}
             <div>
                 <FormControl className={classes.formControl}>
-                    <InputLabel style = {whiteText}  id="demo-controlled-open-select-label">Abilities</InputLabel>
-                    <Select style = {whiteText}
-                    labelId="demo-controlled-open-select-label"
-                    id="demo-controlled-open-select"
-                    open={open}
-                    onClose={handleClose}
-                    onOpen={handleOpen}
-                    value={age}
-                    onChange={handleChange}
+                    <InputLabel style={whiteText} id="demo-controlled-open-select-label">Abilities</InputLabel>
+                    <Select style={whiteText}
+                        labelId="demo-controlled-open-select-label"
+                        id="demo-controlled-open-select"
+                        open={open}
+                        onClose={handleClose}
+                        onOpen={handleOpen}
+                        value={age}
+                        onChange={handleChange}
                     >
-                    <MenuItem value="">
-                        <em>None</em>
-                    </MenuItem>
-                    <MenuItem value={10}>Vote</MenuItem>
-                    <MenuItem value={20}>Ability 2</MenuItem>
-                    <MenuItem  value={30}>Ability 3</MenuItem>
+                        <MenuItem value="">
+                            <em>None</em>
+                        </MenuItem>
+                        <MenuItem value={10}>Vote</MenuItem>
+                        <MenuItem value={20}>Ability 2</MenuItem>
+                        <MenuItem value={30}>Ability 3</MenuItem>
 
                         {/* {scrollData.map((scroll) => (
                         <MenuItem key={scroll.value}>
@@ -310,47 +320,53 @@ function GamePage() {
                 </FormControl>
             </div>
 
-        {/* list of characters description */}
-        <div className={classes.root}>
-            <GridList cellHeight={150} className={classes.gridList}>
+            {/* list of characters description */}
+            <div className={classes.root}>
+                <GridList cellHeight={150} className={classes.gridList}>
                     {tileData.map((tile) => (
-                    <GridListTile key={tile.img}>
-                        <img src={tile.img} alt={tile.title} />
-                        <GridListTileBar
-                        title={tile.title}
-                        subtitle={<span>by: {tile.description}</span>}
-                        />
-                    </GridListTile>
+                        <GridListTile key={tile.img}>
+                            <img src={tile.img} alt={tile.title} />
+                            <GridListTileBar
+                                title={tile.title}
+                                subtitle={<span>by: {tile.description}</span>}
+                            />
+                        </GridListTile>
                     ))}
-            </GridList>
-        </div>
-
-        {/* list of players */}
-        <div className={classes.root2}>
-            <div>
-                <h3 style = {listRoom}>List of Players</h3>
-                <ul style={listColor}>
-                    {items.map((item, i) => (<li style = {marginBottom} key={`item_${i}`}>{user.data.username}
-                    </li>))}
-                </ul>
+                </GridList>
             </div>
-        </div>
-                            
-        {/* chat container */}
-        <div style={container}>
-            <div style={centerCol}>
-                <h1 style = {centerText}> Chat </h1>
-            <ul style = {message}>
-                {items.map((item, i) => (<li style = {marginBottom} key={`item_${i}`}> {item} by: {user.data.username}
+
+            {/* list of players */}
+            <div className={classes.root2}>
+                <div>
+                    <h3 style={listRoom}>List of Players</h3>
+                    <ul style={listColor}>
+                        {items.map((item, i) => (<li style={marginBottom} key={`item_${i}`}>{user.data.username}
                         </li>))}
-            </ul>
+                    </ul>
+                </div>
             </div>
-        </div>
 
-        {/* chat submit form */}
-        <form style = {chatForm, chatBox} action="">
-            <input style = {chatFormInput} id="m" autoComplete="off" /><button style = {chatFormButton}>Send</button>
-        </form>
+            {/* chat container */}
+            <div style={container}>
+                <div style={centerCol}>
+                    <h1 style={centerText}> Chat </h1>
+                    <ul style={message}>
+                        {items.map((item, i) => (<li style={marginBottom} key={`item_${i}`}> {item.msg} by: {item.username}
+                        </li>))}
+                    </ul>
+                </div>
+            </div>
+
+            {/* chat submit form */}
+            <form style={chatForm, chatBox} onSubmit={event => handleSubmit(event)}>
+                <input
+                    placeholder="type something..."
+                    style={chatFormInput}
+                    id="msg"
+                    onChange={e => setMsg(e.target.value.trim())}
+                    autoComplete="off"
+                /><button type="submit" style={chatFormButton}>Send</button>
+            </form>
 
         </div>
     );

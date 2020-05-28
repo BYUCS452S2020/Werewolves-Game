@@ -7,6 +7,7 @@ import { userActions } from '../_actions';
 
 function HomePage() {
     const socket = socketIOClient(ENDPOINT);
+    socket.emit("leave");
     const user = useSelector(state => state.authentication.user);
     // const loggingOut = useSelector(state => state.authentication.loggingOut);
     const dispatch = useDispatch();
@@ -79,10 +80,6 @@ function HomePage() {
         handleGetRooms();
     }, []);
 
-    function handleDeleteUser(id) {
-        dispatch(userActions.delete(id));
-    }
-
     function handleGetRooms() {
         socket.on("RECEIVE_ROOM", data => {
             setRooms(data);
@@ -134,30 +131,6 @@ function HomePage() {
                 </div>
                 
             </div>
-           
-
-            {/* <h2>Welcome {user.firstName}!!!</h2>
-            <p>This is the Lobby</p>
-            <h3>All registered users:</h3>
-            {users.loading && <em>Loading users...</em>}
-            {users.error && <span className="text-danger">ERROR: {users.error}</span>}
-            {users.items &&
-                <ul>
-                    {users.items.map((user, index) =>
-                        <li key={user.id}>
-                            {user.firstName + ' ' + user.lastName}
-                            {
-                                user.deleting ? <em> - Deleting...</em>
-                                : user.deleteError ? <span className="text-danger"> - ERROR: {user.deleteError}</span>
-                                : <span> - <a onClick={() => handleDeleteUser(user.id)} className="text-primary">Delete</a></span>
-                            }
-                        </li>
-                    )}
-                </ul>
-            }
-            <p>
-                <Link to="/login">Logout</Link>
-            </p> */}
         </div>
     );
 }
