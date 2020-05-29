@@ -7,15 +7,14 @@ import { userActions } from '../_actions';
 
 function HomePage() {
     const socket = socketIOClient(ENDPOINT);
+    const users = useSelector(state => state.users);
     const user = useSelector(state => state.authentication.user);
-    // const loggingOut = useSelector(state => state.authentication.loggingOut);
     const dispatch = useDispatch();
 
-    /*test */
     const [rooms, setRooms] = useState("");
     const [room, setRoom] = useState("");
     var items = [...rooms].map((val, i) => `${rooms[i]}`);
-    /*css for test */
+
     const container = {
         display: 'flex',
         flexDirection: 'row',
@@ -97,13 +96,12 @@ function HomePage() {
         socket.emit("SEND_ROOM", room);
     };
 
-
     return (
         <div style = {center}>
             <button className="btn btn-primary" style={logOut}>
                 <Link style={logOut2} to="/login">Logout</Link>
             </button>
-            <h1 style = {redH1}>Welcome {user.data.username} to the LOBBY!!!</h1>
+            <h1 style = {redH1}>Welcome {user.firstName} to the LOBBY!!!</h1>
 
             <form onSubmit={event => handleSubmit(event)} style = {formCenter}>
                 <input

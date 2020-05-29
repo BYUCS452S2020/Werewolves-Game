@@ -3,9 +3,17 @@ import { Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { userActions } from '../_actions';
-import styles from './LoginPage.css';
 
 function LoginPage() {
+    const [inputs, setInputs] = useState({
+        username: '',
+        password: ''
+    });
+    const [submitted, setSubmitted] = useState(false);
+    const { username, password } = inputs;
+    const loggingIn = useSelector(state => state.authentication.loggingIn);
+    const dispatch = useDispatch();
+
 
     const heroText =  {
 
@@ -27,15 +35,6 @@ function LoginPage() {
     const increaseSize2 = {
         fontSize: '3em'
     };
-    
-    const [inputs, setInputs] = useState({
-        username: '',
-        password: ''
-    });
-    const [submitted, setSubmitted] = useState(false);
-    const { username, password } = inputs;
-    const loggingIn = useSelector(state => state.authentication.loggingIn);
-    const dispatch = useDispatch();
 
     // reset login status
     useEffect(() => { 
