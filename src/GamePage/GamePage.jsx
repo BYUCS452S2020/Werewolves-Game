@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import socketIOClient from "socket.io-client";
-const ENDPOINT = "http://127.0.0.1:4002";
+// import socketIOClient from "socket.io-client";
+// const ENDPOINT = "http://127.0.0.1:4002";
 import { userActions } from '../_actions';
+import socketFunction from '../_socket/socket';
 
 import { makeStyles } from '@material-ui/core/styles';
 import GridList from '@material-ui/core/GridList';
@@ -16,13 +17,13 @@ import Select from '@material-ui/core/Select';
 
 const useStyles = makeStyles((theme) => ({
     root: {
-      display: 'flex',
-      flexWrap: 'wrap',
-      justifyContent: 'space-around',
-      overflow: 'hidden',
-      position: 'fixed',
-      top: '8em',
-      left: '38px'
+        display: 'flex',
+        flexWrap: 'wrap',
+        justifyContent: 'space-around',
+        overflow: 'hidden',
+        position: 'fixed',
+        top: '8em',
+        left: '38px'
     },
     root2: {
         display: 'flex',
@@ -32,63 +33,63 @@ const useStyles = makeStyles((theme) => ({
         position: 'fixed',
         top: '8em',
         right: '70px'
-      },
+    },
     gridList: {
         width: '300px',
         height: '400px',
 
     },
     icon: {
-      color: 'rgba(255, 255, 255, 0.54)',
+        color: 'rgba(255, 255, 255, 0.54)',
     },
     button: {
         display: 'block',
         marginTop: theme.spacing(2),
-      },
-      formControl: {
+    },
+    formControl: {
         margin: theme.spacing(1),
         width: '300px'
-      },
-  }));
+    },
+}));
 
-  const tileData = [
+const tileData = [
     {
-        img: './dist/idiot.jpg',
+        img: '/idiot.jpg',
         title: 'Idiot',
         description: 'Just an idiot...',
     },
     {
-        img: './dist/werewolves.jpg',
+        img: '/werewolves.jpg',
         title: 'Werewolves',
         description: 'Wakes up at night. Vote to kill 1 person',
     },
     {
-        img: './dist/seer.jpg',
+        img: '/seer.jpg',
         title: 'Seer',
         description: 'Looks into the future. Picks 1 person to know identity',
     },
     {
-        img: './dist/hunter.jpg',
+        img: '/hunter.jpg',
         title: 'Hunter',
         description: 'Choose another player to kill upon death',
     },
     {
-        img: './dist/wolfKing.jpg',
+        img: '/wolfKing.jpg',
         title: 'Wolf King',
         description: 'Bigger Wolf... gets 2 votes',
     },
     {
-        img: './dist/witch.jpg',
+        img: '/witch.jpg',
         title: 'Witch',
         description: 'Holds 2 vials. 1 to save. 1 to poison',
     },
     {
-        img: './dist/knight.jpg',
+        img: '/knight.jpg',
         title: 'Knight',
         description: 'DayTime can challenge peoples identity',
     },
     {
-        img: './dist/Peasant.jpg',
+        img: '/Peasant.jpg',
         title: 'Peasant',
         description: 'Does nothing....',
     },
@@ -96,11 +97,11 @@ const useStyles = makeStyles((theme) => ({
 
 
 const scrollData = [
-    {   
+    {
         value: "",
         description: 'None'
     },
-    {   
+    {
         value: '10',
         description: 'Vote'
     },
@@ -114,34 +115,37 @@ const scrollData = [
     },
 ];
 
-  
-function GamePage() {
+
+function GamePage(props) {
     const classes = useStyles();
 
-  const [age, setAge] = React.useState('');
-  const [open, setOpen] = React.useState(false);
+    const [age, setAge] = React.useState('');
+    const [open, setOpen] = React.useState(false);
 
-  const handleChange = (event) => {
-    setAge(event.target.value);
-  };
+    const handleChange = (event) => {
+        setAge(event.target.value);
+    };
 
-  const handleClose = () => {
-    setOpen(false);
-  };
+    const handleClose = () => {
+        setOpen(false);
+    };
 
-  const handleOpen = () => {
-    setOpen(true);
-  };
+    const handleOpen = () => {
+        setOpen(true);
+    };
+    const socket = socketFunction();
 
-    const socket = socketIOClient(ENDPOINT);
+    const room = props.location.state.room;
+    // const socket = socketIOClient(ENDPOINT);
     const user = useSelector(state => state.authentication.user);
     // const loggingOut = useSelector(state => state.authentication.loggingOut);
     const dispatch = useDispatch();
 
     /*test */
-    const [rooms, setRooms] = useState("");
-    const [room, setRoom] = useState("");
-    var items = [...rooms].map((val, i) => `${rooms[i]}`);
+    const [msgs, setMsgs] = useState([]);
+    const [newMsg, setNewMsg] = useState({});
+    const [msg, setMsg] = useState({});
+    const [players, setPlayers] = useState([]);
 
     /*css for test */
     const container = {
@@ -215,7 +219,7 @@ function GamePage() {
         background: 'white',
         padding: '3px',
         position: 'fixed',
-    
+
         width: '30%'
     };
 
@@ -232,13 +236,13 @@ function GamePage() {
         border: 'black',
         paddingTop: '10px',
         paddingBottom: '10px',
-        
+
         whiteSpace: 'noWrap',
     };
 
     const message = {
-        listStyleType: 'square', 
-        margin: '10', 
+        listStyleType: 'square',
+        margin: '10',
         padding: '10'
     };
 
@@ -252,53 +256,77 @@ function GamePage() {
 
     useEffect(() => {
         dispatch(userActions.getAll());
-        handleGetRooms();
+        handleMsgQue();
+        handleGetMsg();
+        handleJoin();
+        handlePlayerList();
     }, []);
 
-    function handleGetRooms() {
-        socket.on("RECEIVE_ROOM", data => {
-            setRooms(data);
+    function handleMsgQue() {
+        socket.getMsgQueHandler(messageque => {
+            setMsgs(messageque);
+            console.log('msg que: ', messageque);
+        })
+    }
+
+    function handlePlayerList() {
+        socket.getPlayersHandler(players => {
+            setPlayers(players);
+            console.log('players: ', players);
+        })
+    }
+
+    function handleGetMsg() {
+        socket.getChatMsgHandler((message) => {
+            console.log("username, msg: ", message.username, message.message);
+            console.log("msgs: ", msgs);
+            setMsgs([...msgs]);
         });
     }
 
     const handleSubmit = e => {
         e.preventDefault();
-        if (!room) {
-            return alert("room can't be empty");
+        if (!msg) {
+            return alert("msg can't be empty");
         }
-        socket.emit("SEND_ROOM", room);
+        socket.sendChatMsg(user.data.username, msg);
     };
+
+    function handleJoin() {
+        socket.join(user.data.username, room);
+    }
+
 
 
     return (
-        <div style = {center}>
+        <div style={center}>
             {/* logout button */}
             <button className="btn btn-primary" style={logOut}>
                 <Link style={logOut2} to="/">Go Back</Link>
             </button>
 
             {/* title */}
-            <h1 style = {redH1}>{user.username}'s Character: Werewolf</h1>
+            <h1 style={redH1}>{user.data.username}'s Character: Werewolf</h1>
 
             {/* Ability drop down */}
             <div>
                 <FormControl className={classes.formControl}>
-                    <InputLabel style = {whiteText}  id="demo-controlled-open-select-label">Abilities</InputLabel>
-                    <Select style = {whiteText}
-                    labelId="demo-controlled-open-select-label"
-                    id="demo-controlled-open-select"
-                    open={open}
-                    onClose={handleClose}
-                    onOpen={handleOpen}
-                    value={age}
-                    onChange={handleChange}
+                    <InputLabel style={whiteText} id="demo-controlled-open-select-label">Abilities</InputLabel>
+                    <Select style={whiteText}
+                        labelId="demo-controlled-open-select-label"
+                        id="demo-controlled-open-select"
+                        open={open}
+                        onClose={handleClose}
+                        onOpen={handleOpen}
+                        value={age}
+                        onChange={handleChange}
                     >
-                    <MenuItem value="">
-                        <em>None</em>
-                    </MenuItem>
-                    <MenuItem value={10}>Vote</MenuItem>
-                    <MenuItem value={20}>Ability 2</MenuItem>
-                    <MenuItem  value={30}>Ability 3</MenuItem>
+                        <MenuItem value="">
+                            <em>None</em>
+                        </MenuItem>
+                        <MenuItem value={10}>Vote</MenuItem>
+                        <MenuItem value={20}>Ability 2</MenuItem>
+                        <MenuItem value={30}>Ability 3</MenuItem>
 
                         {/* {scrollData.map((scroll) => (
                         <MenuItem key={scroll.value}>
@@ -310,47 +338,53 @@ function GamePage() {
                 </FormControl>
             </div>
 
-        {/* list of characters description */}
-        <div className={classes.root}>
-            <GridList cellHeight={150} className={classes.gridList}>
+            {/* list of characters description */}
+            <div className={classes.root}>
+                <GridList cellHeight={150} className={classes.gridList}>
                     {tileData.map((tile) => (
-                    <GridListTile key={tile.img}>
-                        <img src={tile.img} alt={tile.title} />
-                        <GridListTileBar
-                        title={tile.title}
-                        subtitle={<span>by: {tile.description}</span>}
-                        />
-                    </GridListTile>
+                        <GridListTile key={tile.img}>
+                            <img src={tile.img} alt={tile.title} />
+                            <GridListTileBar
+                                title={tile.title}
+                                subtitle={<span>by: {tile.description}</span>}
+                            />
+                        </GridListTile>
                     ))}
-            </GridList>
-        </div>
-
-        {/* list of players */}
-        <div className={classes.root2}>
-            <div>
-                <h3 style = {listRoom}>List of Players</h3>
-                <ul style={listColor}>
-                    {items.map((item, i) => (<li style = {marginBottom} key={`item_${i}`}>{user.username}
-                    </li>))}
-                </ul>
+                </GridList>
             </div>
-        </div>
-                            
-        {/* chat container */}
-        <div style={container}>
-            <div style={centerCol}>
-                <h1 style = {centerText}> Chat </h1>
-            <ul style = {message}>
-                {items.map((item, i) => (<li style = {marginBottom} key={`item_${i}`}> {item} by: {user.username}
+
+            {/* list of players */}
+            <div className={classes.root2}>
+                <div>
+                    <h3 style={listRoom}>List of Players</h3>
+                    <ul style={listColor}>
+                        {players.map((item, i) => (<li style={marginBottom} key={`item_${i}`}>{item}
                         </li>))}
-            </ul>
+                    </ul>
+                </div>
             </div>
-        </div>
 
-        {/* chat submit form */}
-        <form style = {chatForm, chatBox} action="">
-            <input style = {chatFormInput} id="m" autoComplete="off" /><button style = {chatFormButton}>Send</button>
-        </form>
+            {/* chat container */}
+            <div style={container}>
+                <div style={centerCol}>
+                    <h1 style={centerText}> Chat </h1>
+                    <ul style={message}>
+                        {msgs.map((item, i) => (<li style={marginBottom} key={`item_${i}`}> {item.message} by: {item.username}
+                        </li>))}
+                    </ul>
+                </div>
+            </div>
+
+            {/* chat submit form */}
+            <form style={chatForm, chatBox} onSubmit={event => handleSubmit(event)}>
+                <input
+                    placeholder="type something..."
+                    style={chatFormInput}
+                    id="msg"
+                    onChange={e => setMsg(e.target.value.trim())}
+                    autoComplete="off"
+                /><button type="submit" style={chatFormButton}>Send</button>
+            </form>
 
         </div>
     );
