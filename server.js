@@ -27,7 +27,7 @@ app.use(jwt());
 // api routes
 require('./server/routes/character.route')(app);
 require('./server/routes/user.route')(app);
-require('./server/routes/lobby')(app);
+require('./server/socket/gameSocket')(app);
 
 // global error handler
 app.use(errorHandler);

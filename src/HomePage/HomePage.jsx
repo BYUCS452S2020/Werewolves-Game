@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import socketIOClient from "socket.io-client";
-const ENDPOINT = "http://127.0.0.1:4002";
+// import socketIOClient from "socket.io-client";
+// const ENDPOINT = "http://127.0.0.1:4002";
 import { userActions } from '../_actions';
+import socketFunction from '../_socket/socket';
 
 function HomePage() {
-    const socket = socketIOClient(ENDPOINT);
-    socket.emit("leave");
+    // const socket = socketIOClient(ENDPOINT);
+    // socket.emit("leave");
+    const socket = socketFunction();
     const user = useSelector(state => state.authentication.user);
     // const loggingOut = useSelector(state => state.authentication.loggingOut);
     const dispatch = useDispatch();
@@ -78,10 +80,11 @@ function HomePage() {
     useEffect(() => {
         dispatch(userActions.getAll());
         handleGetRooms();
+        handleLeave();
     }, []);
 
     function handleGetRooms() {
-        socket.on("RECEIVE_ROOM", data => {
+        socket.getRoomsHandler(data => {
             setRooms(data);
         });
     }
@@ -91,45 +94,54 @@ function HomePage() {
         if (!room) {
             return alert("room can't be empty");
         }
-        socket.emit("SEND_ROOM", room);
     };
+
+    function handleLeave() {
+        socket.leave(user.data.username);
+    }
 
 
     return (
-        <div style = {center}>
+        <div style={center}>
             <button className="btn btn-primary" style={logOut}>
                 <Link style={logOut2} to="/login">Logout</Link>
             </button>
-            <h1 style = {redH1}>Welcome {user.data.username} to the LOBBY!!!</h1>
+            <h1 style={redH1}>Welcome {user.data.username} to the LOBBY!!!</h1>
 
-            <form onSubmit={event => handleSubmit(event)} style = {formCenter}>
+            <form onSubmit={event => handleSubmit(event)} style={formCenter}>
                 <input
                     id="room"
                     onChange={e => setRoom(e.target.value.trim())}
                     placeholder="Name Your Room"
                 />
-                <button type="submit">Create</button>
+                <button type="submit">
+                    <Link style={logOut2} to={{
+                        pathname: '/game',
+                        state: {
+                            room: room
+                        }
+                    }}>Submit</Link></button>
             </form>
 
             <div style={container}>
 
                 <div style={centerCol}>
-                    <span style = {listRoom}>List of Rooms to choose from:</span>
+                    <span style={listRoom}>List of Rooms to choose from:</span>
                     <ul style={listColor}>
                         {/* <div>Welcome {user.firstName}</div> */}
-                        {items.map((item, i) => (<li style = {marginBottom} key={`item_${i}`}>{item}
-                            <button style = {leftAlign}>
+                        {items.map((item, i) => (<li style={marginBottom} key={`item_${i}`}>{item}
+                            <button style={leftAlign}>
                                 <Link style={logOut2} to={{
                                     pathname: '/game',
                                     state: {
                                         room: item
                                     }
-                                    }}>Click to go to room</Link>
+                                }}>Click to go to room</Link>
                             </button>
                         </li>))}
                     </ul>
                 </div>
-                
+
             </div>
         </div>
     );

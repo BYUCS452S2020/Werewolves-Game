@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import socketIOClient from "socket.io-client";
-const ENDPOINT = "http://127.0.0.1:4002";
+// import socketIOClient from "socket.io-client";
+// const ENDPOINT = "http://127.0.0.1:4002";
 import { userActions } from '../_actions';
+import socketFunction from '../_socket/socket';
 
 import { makeStyles } from '@material-ui/core/styles';
 import GridList from '@material-ui/core/GridList';
@@ -132,22 +133,19 @@ function GamePage(props) {
     const handleOpen = () => {
         setOpen(true);
     };
+    const socket = socketFunction();
 
     const room = props.location.state.room;
-    const socket = socketIOClient(ENDPOINT);
+    // const socket = socketIOClient(ENDPOINT);
     const user = useSelector(state => state.authentication.user);
-    socket.emit("join", user.data.username, room);
     // const loggingOut = useSelector(state => state.authentication.loggingOut);
     const dispatch = useDispatch();
 
-    var temp = [];
-    socket.on("message que", data => {
-        temp = data;
-    })
     /*test */
-    const [msgs, setMsgs] = useState(temp);
-    const [msg, setMsg] = useState("");
-    var items = [...msgs].map((val, i) => msgs[i]);
+    const [msgs, setMsgs] = useState([]);
+    const [newMsg, setNewMsg] = useState({});
+    const [msg, setMsg] = useState({});
+    const [players, setPlayers] = useState([]);
 
     /*css for test */
     const container = {
@@ -258,16 +256,32 @@ function GamePage(props) {
 
     useEffect(() => {
         dispatch(userActions.getAll());
+        handleMsgQue();
         handleGetMsg();
+        handleJoin();
+        handlePlayerList();
     }, []);
 
+    function handleMsgQue() {
+        socket.getMsgQueHandler(messageque => {
+            setMsgs(messageque);
+            console.log('msg que: ', messageque);
+        })
+    }
+
+    function handlePlayerList() {
+        socket.getPlayersHandler(players => {
+            setPlayers(players);
+            console.log('players: ', players);
+        })
+    }
+
     function handleGetMsg() {
-        socket.on("chat message", (username, msg) => {
-            console.log("username, msg: ", username, msg);
-            temp.push({username, msg});
-            setMsgs(temp);
+        socket.getChatMsgHandler((message) => {
+            console.log("username, msg: ", message.username, message.message);
+            console.log("msgs: ", msgs);
+            setMsgs([...msgs]);
         });
-        console.log("msgs: ",msgs);
     }
 
     const handleSubmit = e => {
@@ -275,8 +289,12 @@ function GamePage(props) {
         if (!msg) {
             return alert("msg can't be empty");
         }
-        socket.emit("chat message", msg, room);
+        socket.sendChatMsg(user.data.username, msg);
     };
+
+    function handleJoin() {
+        socket.join(user.data.username, room);
+    }
 
 
 
@@ -340,7 +358,7 @@ function GamePage(props) {
                 <div>
                     <h3 style={listRoom}>List of Players</h3>
                     <ul style={listColor}>
-                        {items.map((item, i) => (<li style={marginBottom} key={`item_${i}`}>{user.data.username}
+                        {players.map((item, i) => (<li style={marginBottom} key={`item_${i}`}>{item}
                         </li>))}
                     </ul>
                 </div>
@@ -351,7 +369,7 @@ function GamePage(props) {
                 <div style={centerCol}>
                     <h1 style={centerText}> Chat </h1>
                     <ul style={message}>
-                        {items.map((item, i) => (<li style={marginBottom} key={`item_${i}`}> {item.msg} by: {item.username}
+                        {msgs.map((item, i) => (<li style={marginBottom} key={`item_${i}`}> {item.message} by: {item.username}
                         </li>))}
                     </ul>
                 </div>
