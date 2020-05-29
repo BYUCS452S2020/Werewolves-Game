@@ -103,8 +103,17 @@ class GameManager {
 		
 	}
 	
-	kill_character(character_id){
-		this.dict[character_id].alive = false;
+	// poison is the boolean to indicate whether the character is being
+	// poisioned to death. Hunter won't be able to unleash its ability
+	// if poisoned to death 
+	// return true if killed a hunter
+	kill_character(player_id, poison = false){
+		this.dict[player_id].alive = false;
+		// if(!false && this.dict[player_id_id].character_id == 3){ //hunter
+		// return true;
+			
+		// }
+		// return false;
 	}
 	
 	vote_for_character(character_id, votes){

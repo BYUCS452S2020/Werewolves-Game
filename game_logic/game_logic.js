@@ -57,7 +57,18 @@ function assign_character(){
 function kill_character(){
 	console.log('Which player do you want to kill?');
 	let id = cmd.readInt();
-	gameManager.kill_character(id);
+	
+	hunter_down = gameManager.kill_character(id);
+	let use_ability = false;
+	while(hunter_down == true && use_ability == true){
+		console.log(`player ${id} is a hunter!!`);
+		console.log('Do you want to take a player with you? \(y/n\)');
+		id = cmd.readInt();
+		
+		console.log('Which character do you want to take with you?');
+		id = cmd.readInt();
+		
+	}
 	console.log(`player ${id} is dead!!`);
 }
 
