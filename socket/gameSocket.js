@@ -28,20 +28,16 @@ module.exports = app => {
         // socket.emit('RECEIVE_ROOM', rooms);
         
 
-        // socket.on('SEND_ROOM', function (data) {
-        //     console.log("room received: ", data);
-        //     io.emit('RECEIVE_ROOM', [ ...roomManager.keys() ]);
-        // })
+        socket.on('request rooms', function () {
+            console.log("rooms: ", [ ...roomManager.keys() ]);
+            io.emit('RECEIVE_ROOM', [ ...roomManager.keys() ]);
+        })
 
         socket.on('join', (username, room) => {
             console.log(`${username} joining room '${room}'`);
             socket.join(room);
             player = new Player(username);
             gameroom = null;
-            message = {
-                username: player.username,
-                message: `${player.username} joined the room`
-            };
 
             // Create Room
             if (!roomManager.has(room)) {
@@ -56,10 +52,11 @@ module.exports = app => {
             else {
                 gameroom = roomManager.get(room);
                 gameroom.joinPlayer(player);
+                console.log("room msgs: ", gameroom.getMessageQue());
                 socket.emit('message que', gameroom.getMessageQue());
-                socket.to(room).broadcast.emit('chat message', message);
+                socket.to(room).broadcast.emit('message que', gameroom.getMessageQue());
                 socket.to(room).broadcast.emit('get players', gameroom.getAllPlayerNames());
-                socket.emit('chat message', message);
+                // socket.emit('chat message', message);
                 socket.emit('get players', gameroom.getAllPlayerNames());
             }
             userroom.set(username, gameroom);
@@ -75,11 +72,10 @@ module.exports = app => {
 
         socket.on('chat message', (username, message) => {
             gameroom = userroom.get(username);
-            console.log('msg: ', msg);
+            console.log('msg: ', `${message} by ${username}`);
             console.log('gameroom: ', gameroom);
             gameroom.addMessage(username, message);
-            socket.to(gameroom.getRoomName()).broadcast.emit('chat message', msg);
-            socket.emit('chat message', msg);
+            socket.to(gameroom.getRoomName()).broadcast.emit('message que', gameroom.getMessageQue());
         })
 
 
@@ -100,20 +96,20 @@ module.exports = app => {
                     roomManager.delete(gameroom.getRoomName());
                 }
                 else {
-                    msg = {
-                        username: username,
-                        message: `${username} has left the room`
-                    }
+                    // msg = {
+                    //     username: username,
+                    //     message: `${username} has left the room`
+                    // }
                     rooms = [ ...roomManager.keys() ];
 
-                    gameroom.addMessage(msg);
+                    gameroom.addMessage(username, `${username} has left the room`);
                     console.log("room name: ", gameroom.getRoomName());
-                    socket.to(gameroom.getRoomName()).broadcast.emit('chat message', msg);
+                    socket.to(gameroom.getRoomName()).broadcast.emit('message que', gameroom.getMessageQue());
                     socket.to(gameroom.getRoomName()).broadcast.emit('get players', gameroom.getAllPlayerNames());
                 }
             }
-            rooms = [ ...roomManager.keys() ];
-            socket.broadcast.emit('RECEIVE_ROOM', rooms);
+            // rooms = [ ...roomManager.keys() ];
+            socket.broadcast.emit('RECEIVE_ROOM', [ ...roomManager.keys() ]);
         });
         socket.on('disconnect', () => {
             console.log("disconnected");
@@ -127,24 +123,18 @@ module.exports = app => {
                 gameroom.deletePlayer(username);
                 if (gameroom.isEmpty()) {
                     roomManager.delete(gameroom.getRoomName());
-                    rooms = [ ...roomManager.keys() ];
-                    socket.broadcast.emit('RECEIVE_ROOM', rooms);
-                    socket.emit('RECEIVE_ROOM', rooms);
                 }
                 else {
-                    msg = {
-                        username: username,
-                        message: `${username} has left the room`
-                    }
                     rooms = [ ...roomManager.keys() ];
 
-                    gameroom.addMessage(msg);
-                    socket.broadcast.emit('RECEIVE_ROOM', rooms);
+                    gameroom.addMessage(username, `${username} has left the room`);
+                    console.log("room name: ", gameroom.getRoomName());
+                    socket.to(gameroom.getRoomName()).broadcast.emit('message que', gameroom.getMessageQue());
                     socket.to(gameroom.getRoomName()).broadcast.emit('get players', gameroom.getAllPlayerNames());
-                    socket.to(gameroom.getRoomName()).broadcast.emit('chat message', msg);
-                    socket.emit('RECEIVE_ROOM', rooms);
                 }
             }
+
+            socket.broadcast.emit('RECEIVE_ROOM', [ ...roomManager.keys() ]);
         });
 
     });

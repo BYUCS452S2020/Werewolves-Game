@@ -81,7 +81,12 @@ function HomePage() {
         dispatch(userActions.getAll());
         handleGetRooms();
         handleLeave();
+        handleRequestRooms();
     }, []);
+
+    function handleRequestRooms() {
+        socket.requestRooms();
+    }
 
     function handleGetRooms() {
         socket.getRoomsHandler(data => {
@@ -97,7 +102,7 @@ function HomePage() {
     };
 
     function handleLeave() {
-        socket.leave(user.data.username);
+        socket.leave(user.username);
     }
 
 
@@ -106,7 +111,7 @@ function HomePage() {
             <button className="btn btn-primary" style={logOut}>
                 <Link style={logOut2} to="/login">Logout</Link>
             </button>
-            <h1 style={redH1}>Welcome {user.data.username} to the LOBBY!!!</h1>
+            <h1 style={redH1}>Welcome {user.username} to the LOBBY!!!</h1>
 
             <form onSubmit={event => handleSubmit(event)} style={formCenter}>
                 <input

@@ -32,6 +32,10 @@ export default function () {
         socket.emit('leave', username)
     }
 
+    function requestRooms() {
+        socket.emit('request rooms', )
+    }
+
 
     return {
         getRoomsHandler,
@@ -40,6 +44,7 @@ export default function () {
         getPlayersHandler,
         sendChatMsg,
         leave,
-        join
+        join,
+        requestRooms
     }
 }

@@ -257,7 +257,7 @@ function GamePage(props) {
     useEffect(() => {
         dispatch(userActions.getAll());
         handleMsgQue();
-        handleGetMsg();
+        // handleGetMsg();
         handleJoin();
         handlePlayerList();
     }, []);
@@ -289,11 +289,11 @@ function GamePage(props) {
         if (!msg) {
             return alert("msg can't be empty");
         }
-        socket.sendChatMsg(user.data.username, msg);
+        socket.sendChatMsg(user.username, msg);
     };
 
     function handleJoin() {
-        socket.join(user.data.username, room);
+        socket.join(user.username, room);
     }
 
 
@@ -306,7 +306,7 @@ function GamePage(props) {
             </button>
 
             {/* title */}
-            <h1 style={redH1}>{user.data.username}'s Character: Werewolf</h1>
+            <h1 style={redH1}>{user.username}'s Character: Werewolf</h1>
 
             {/* Ability drop down */}
             <div>
