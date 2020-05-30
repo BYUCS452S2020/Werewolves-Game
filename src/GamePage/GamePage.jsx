@@ -276,14 +276,6 @@ function GamePage(props) {
         })
     }
 
-    function handleGetMsg() {
-        socket.getChatMsgHandler((message) => {
-            console.log("username, msg: ", message.username, message.message);
-            console.log("msgs: ", msgs);
-            setMsgs([...msgs]);
-        });
-    }
-
     const handleSubmit = e => {
         e.preventDefault();
         if (!msg) {

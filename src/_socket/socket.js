@@ -12,10 +12,6 @@ export default function () {
         socket.on("message que", cb)
     }
 
-    function getChatMsgHandler(cb) {
-        socket.on("chat message", cb)
-    }
-
     function getPlayersHandler(cb) {
         socket.on("get players", cb)
     }
@@ -40,7 +36,6 @@ export default function () {
     return {
         getRoomsHandler,
         getMsgQueHandler,
-        getChatMsgHandler,
         getPlayersHandler,
         sendChatMsg,
         leave,
