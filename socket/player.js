@@ -1,12 +1,36 @@
 module.exports = class Player {
-    constructor(username, character = null, ability = null) {
+
+    // setPlayerID()
+    // getPlayerID()
+    // getUsername()
+    // isAlive()
+    // getKilled()
+    // getSaved()
+    // getVote()
+    // setVote(votee_id)
+    // getSide()
+    // setSide(side)
+    // getCharacter() 
+    // getAbility()
+    // setCharacter(char) 
+
+    constructor(username, character = 'not started', ability = null, player_id = 0) {
 		this.username = username;
 		this.vote = 0;
 		this.alive = true;
-		this.side = true;
+		this.side = 0;
 		//unique value for the character-player pair
 		this.character = character;
 		this.ability = ability;
+		this.player_id = player_id;
+    }
+
+    setPlayerID(id) {
+        this.player_id = id;
+    }
+
+    getPlayerID() {
+        return this.player_id;
     }
     
     getUsername() {
@@ -17,7 +41,7 @@ module.exports = class Player {
         return this.alive;
     }
 
-    getkilled() {
+    getKilled() {
         this.alive = false;
     }
 
@@ -49,9 +73,10 @@ module.exports = class Player {
         return this.ability;
     }
 
-    setCharacter(charName, ability) {
-        this.character = charName;
-        this.ability = ability;
+    setCharacter(char) {
+        this.character = char.name;
+        this.ability = char.ability;
+        this.side = char.side;
     }
 
 }

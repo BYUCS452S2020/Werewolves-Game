@@ -143,9 +143,10 @@ function GamePage(props) {
 
     /*test */
     const [msgs, setMsgs] = useState([]);
-    const [newMsg, setNewMsg] = useState({});
-    const [msg, setMsg] = useState({});
+    const [msg, setMsg] = useState('');
     const [players, setPlayers] = useState([]);
+    const [player, setPlayer] = useState({ character: 'None' });
+    const [isHost, setIsHost] = useState(false);
 
     /*css for test */
     const container = {
@@ -170,6 +171,12 @@ function GamePage(props) {
         position: 'fixed',
         top: '30px',
         left: '38px',
+    };
+
+    const startButton = {
+        position: 'fixed',
+        top: '30px',
+        right: '38px',
     };
 
     const logOut2 = {
@@ -257,22 +264,37 @@ function GamePage(props) {
     useEffect(() => {
         dispatch(userActions.getAll());
         handleMsgQue();
-        // handleGetMsg();
         handleJoin();
         handlePlayerList();
+        handlePlayerInfo();
+        handleIsHost();
     }, []);
 
     function handleMsgQue() {
         socket.getMsgQueHandler(messageque => {
             setMsgs(messageque);
-            console.log('msg que: ', messageque);
+            // console.log('msg que: ', messageque);
         })
     }
 
     function handlePlayerList() {
         socket.getPlayersHandler(players => {
             setPlayers(players);
-            console.log('players: ', players);
+            // console.log('players: ', players);
+        })
+    }
+
+    function handlePlayerInfo() {
+        socket.getPlayerInfoHandler(player => {
+            setPlayer(player);
+            console.log('player: ', player);
+        })
+    }
+
+    function handleIsHost() {
+        socket.getIsHostHandler(data => {
+            setIsHost(data);
+            console.log('is host: ', data);
         })
     }
 
@@ -281,12 +303,18 @@ function GamePage(props) {
         if (!msg) {
             return alert("msg can't be empty");
         }
-        socket.sendChatMsg(user.username, msg);
+        socket.sendChatMsg(msg);
+        setMsg('');
     };
 
     function handleJoin() {
         socket.join(user.username, room);
     }
+
+    function game_proceeds() {
+        socket.gameProceeds();
+    }
+
 
 
 
@@ -297,8 +325,14 @@ function GamePage(props) {
                 <Link style={logOut2} to="/">Go Back</Link>
             </button>
 
+            {/* start button */}
+            <button className="btn btn-primary" style={startButton} type="button" onClick={game_proceeds}>
+                <div style={logOut2} >game proceeds</div>
+            </button>
+
+
             {/* title */}
-            <h1 style={redH1}>{user.username}'s Character: Werewolf</h1>
+            <h1 style={redH1}>{user.username}'s Character: {player.character}</h1>
 
             {/* Ability drop down */}
             <div>
