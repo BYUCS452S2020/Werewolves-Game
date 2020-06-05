@@ -95,35 +95,67 @@ const tileData = [
     },
 ];
 
-
-const scrollData = [
-    {
-        value: "",
-        description: 'None'
-    },
-    {
-        value: '10',
-        description: 'Vote'
-    },
-    {
-        value: '20',
-        description: 'Ability 2'
-    },
-    {
-        value: '30',
-        description: 'Ability 3'
-    },
-];
-
-
 function GamePage(props) {
     const classes = useStyles();
+    const socket = socketFunction();
 
-    const [age, setAge] = React.useState('');
+    const room = props.location.state.room;
+    const user = useSelector(state => state.authentication.user);
+    const dispatch = useDispatch();
+
+
     const [open, setOpen] = React.useState(false);
+    const [msgs, setMsgs] = useState([]);
+    const [msg, setMsg] = useState('');
+    const [players, setPlayers] = useState([]);
+    const [player, setPlayer] = useState({ character: 'None' });
+    const [isHost, setIsHost] = useState(false);
+    const [gameProcess, setGameProcess] = useState('assign roles');
+    const [night, setNight] = useState(false);
+    const [ability, setAbility] = useState(false);
+    const [voting, setVoting] = useState(false);
+
 
     const handleChange = (event) => {
-        setAge(event.target.value);
+        // console.log("menu value: ", event.target.value);
+        if (night == null) {
+            return alert("have not started");
+        }
+
+        if (confirm('Are you sure to choose this player?')) {
+            if (night) {
+                switch (player.ability) {
+                    case "test":
+                        socket.seerTest(event.target.value);
+                        break;
+                    case "save_posion":
+                        socket.witchKill(event.target.value);
+                        break;
+                    default:
+                        socket.wolvesKill(event.target.value);
+                        break;
+                }
+            }
+            else if (!night && !player.alive) {
+                switch (player.ability) {
+                    case "revenge":
+                        // socket.seerTest(event.target.value);
+                        break;
+                    case "challenge":
+                        // socket.witchKill(event.target.value);
+                        break;
+                    default:
+                        // socket.wolvesKill(event.target.value);
+                        break;
+                }
+            }
+            else if (voting && !night) {
+                socket.vote(event.target.value);
+                setVoting(false);
+            }
+            setAbility(false);
+        }
+        // setAge(event.target.value);
     };
 
     const handleClose = () => {
@@ -133,20 +165,6 @@ function GamePage(props) {
     const handleOpen = () => {
         setOpen(true);
     };
-    const socket = socketFunction();
-
-    const room = props.location.state.room;
-    // const socket = socketIOClient(ENDPOINT);
-    const user = useSelector(state => state.authentication.user);
-    // const loggingOut = useSelector(state => state.authentication.loggingOut);
-    const dispatch = useDispatch();
-
-    /*test */
-    const [msgs, setMsgs] = useState([]);
-    const [msg, setMsg] = useState('');
-    const [players, setPlayers] = useState([]);
-    const [player, setPlayer] = useState({ character: 'None' });
-    const [isHost, setIsHost] = useState(false);
 
     /*css for test */
     const container = {
@@ -268,6 +286,12 @@ function GamePage(props) {
         handlePlayerList();
         handlePlayerInfo();
         handleIsHost();
+        handleGameProceeds();
+        handleWolfKill();
+        handleWitchKill();
+        handleSeerTest();
+        handleWitchSave();
+        handleVoting();
     }, []);
 
     function handleMsgQue() {
@@ -297,14 +321,80 @@ function GamePage(props) {
             console.log('is host: ', data);
         })
     }
+    function handleGameProceeds() {
+        socket.getProcessHandler((gameProcess, nightB) => {
+            if (gameProcess == 'into the night') {
+                setAbility(false);
+                setNight(true);
+                setVoting(false);
+            }
+            else if (gameProcess == 'Starting the day') {
+                setNight(false);
+            }
+            else if (gameProcess == 'start voting') {
+                setAbility(true);
+                setVoting(true);
+            }
+            setGameProcess(gameProcess);
+        });
+    }
+
+    function handleWolfKill() {
+        socket.getWolvesKillHandler(() => {
+            setAbility(true);
+        })
+
+    }
+
+    function handleWitchKill() {
+        socket.getWitchKillHandler(() => {
+            setAbility(true);
+        })
+    }
+
+    function handleWitchSave() {
+        socket.getWitchSaveHandler((id) => {
+            console.log(`Player ${id} has been attacked. Do you want to save him?`);
+
+            if (confirm(`Player ${id} has been attacked. Do you want to save him?`)) {
+                socket.witchSave(id);
+            }
+            else
+                socket.witchSave(0);
+        })
+    }
+
+    function handleSeerTest() {
+        socket.getSeerTestHandler(() => {
+            setAbility(true);
+        })
+    }
+
+    function handleVoting() {
+        socket.getVotingHandler(() => {
+            setAbility(true);
+            setVoting(true);
+        })
+    }
+
 
     const handleSubmit = e => {
         e.preventDefault();
         if (!msg) {
             return alert("msg can't be empty");
         }
-        socket.sendChatMsg(msg);
+        if (!player.alive) {
+            return alert("dead man can't message");
+        }
+        // console.log("night: ", night);
+        if (night && player.side == -1) {
+            socket.sendWolfMsg(msg);
+        }
+        else if (!night) {
+            socket.sendChatMsg(msg);
+        }
         setMsg('');
+        e.target.reset();
     };
 
     function handleJoin() {
@@ -312,7 +402,22 @@ function GamePage(props) {
     }
 
     function game_proceeds() {
-        socket.gameProceeds();
+        if (gameProcess == 'assign roles') {
+            console.log("assign roles");
+            socket.assignRoles();
+        }
+        else if (gameProcess == 'into the night') {
+            console.log("into the night", night);
+            socket.intoTheNight();
+        }
+        else if (gameProcess == 'Starting the day') {
+            console.log("out of the night", !night);
+            socket.startingTheDay();
+        }
+        else if (gameProcess == 'start voting') {
+            console.log("start voting", !night);
+            socket.startingVote();
+        }
     }
 
 
@@ -326,43 +431,47 @@ function GamePage(props) {
             </button>
 
             {/* start button */}
-            <button className="btn btn-primary" style={startButton} type="button" onClick={game_proceeds}>
-                <div style={logOut2} >game proceeds</div>
-            </button>
+            {isHost &&
+                <button className="btn btn-primary" style={startButton} type="button" onClick={game_proceeds}>
+                    <div style={logOut2} >{gameProcess}</div>
+                </button>
+            }
 
 
             {/* title */}
             <h1 style={redH1}>{user.username}'s Character: {player.character}</h1>
 
             {/* Ability drop down */}
-            <div>
-                <FormControl className={classes.formControl}>
-                    <InputLabel style={whiteText} id="demo-controlled-open-select-label">Abilities</InputLabel>
-                    <Select style={whiteText}
-                        labelId="demo-controlled-open-select-label"
-                        id="demo-controlled-open-select"
-                        open={open}
-                        onClose={handleClose}
-                        onOpen={handleOpen}
-                        value={age}
-                        onChange={handleChange}
-                    >
-                        <MenuItem value="">
-                            <em>None</em>
-                        </MenuItem>
-                        <MenuItem value={10}>Vote</MenuItem>
-                        <MenuItem value={20}>Ability 2</MenuItem>
-                        <MenuItem value={30}>Ability 3</MenuItem>
-
-                        {/* {scrollData.map((scroll) => (
-                        <MenuItem key={scroll.value}>
-                         <div>{scroll.description}</div>
-                        </MenuItem>
-                        ))} */}
-
-                    </Select>
-                </FormControl>
-            </div>
+            {ability &&
+                <div>
+                    <FormControl className={classes.formControl}>
+                        <InputLabel style={whiteText} id="demo-controlled-open-select-label">Abilities</InputLabel>
+                        <Select style={whiteText}
+                            labelId="demo-controlled-open-select-label"
+                            id="demo-controlled-open-select"
+                            open={open}
+                            onClose={handleClose}
+                            onOpen={handleOpen}
+                            // value={age}
+                            onChange={handleChange}
+                        >
+                            <MenuItem value={0}>
+                                <div>None</div>
+                            </MenuItem>
+                            {players.map((player) => {
+                                if (player.alive) {
+                                    return (<MenuItem value={player.id}>
+                                        <div>{player.name}</div>
+                                    </MenuItem>)
+                                }
+                            })}
+                        </Select>
+                        <button className="btn btn-primary" style={startButton} type="button" onClick={game_proceeds}>
+                            <div style={logOut2} >{gameProcess}</div>
+                        </button>
+                    </FormControl>
+                </div>
+            }
 
             {/* list of characters description */}
             <div className={classes.root}>
@@ -384,8 +493,14 @@ function GamePage(props) {
                 <div>
                     <h3 style={listRoom}>List of Players</h3>
                     <ul style={listColor}>
-                        {players.map((item, i) => (<li style={marginBottom} key={`item_${i}`}>{item}
-                        </li>))}
+                        {players.map((player, i) => {
+                            if (player.alive) {
+                                return (<li style={marginBottom} key={`item_${i}`}>{player.name}</li>)
+                            }
+                            else {
+                                return (<li style={marginBottom} key={`item_${i}`}><s>{player.name}</s></li>)
+                            }
+                        })}
                     </ul>
                 </div>
             </div>
@@ -395,7 +510,7 @@ function GamePage(props) {
                 <div style={centerCol}>
                     <h1 style={centerText}> Chat </h1>
                     <ul style={message}>
-                        {msgs.map((item, i) => (<li style={marginBottom} key={`item_${i}`}> {item.message} by: {item.username}
+                        {msgs.map((item, i) => (<li style={marginBottom} key={`item_${i}`}> {item.username}: {item.message}
                         </li>))}
                     </ul>
                 </div>

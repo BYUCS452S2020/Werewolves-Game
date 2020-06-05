@@ -13,8 +13,9 @@ module.exports = class Player {
     // getCharacter() 
     // getAbility()
     // setCharacter(char) 
+    // setAbility(ability) {
 
-    constructor(username, character = 'not started', ability = null, player_id = 0) {
+    constructor(username, character = 'not started', ability = null, player_id = 1, ability_time = 2) {
 		this.username = username;
 		this.vote = 0;
 		this.alive = true;
@@ -22,7 +23,8 @@ module.exports = class Player {
 		//unique value for the character-player pair
 		this.character = character;
 		this.ability = ability;
-		this.player_id = player_id;
+        this.player_id = player_id;
+        this.ability_time = ability_time;
     }
 
     setPlayerID(id) {
@@ -77,6 +79,10 @@ module.exports = class Player {
         this.character = char.name;
         this.ability = char.ability;
         this.side = char.side;
+    }
+
+    setAbility(ability) {
+        this.ability = ability;
     }
 
 }
