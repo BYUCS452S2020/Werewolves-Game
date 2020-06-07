@@ -15,16 +15,20 @@ module.exports = class Player {
     // setCharacter(char) 
     // setAbility(ability) {
 
-    constructor(username, character = 'not started', ability = null, player_id = 1, ability_time = 2) {
+    constructor(username) {
 		this.username = username;
-		this.vote = 0;
 		this.alive = true;
 		this.side = 0;
-		//unique value for the character-player pair
-		this.character = character;
-		this.ability = ability;
-        this.player_id = player_id;
-        this.ability_time = ability_time;
+		this.character = 'not started';
+		this.ability = null;
+        this.player_id = 1;
+    }
+
+    reset() {
+		this.alive = true;
+		this.side = 0;
+		this.character = 'not started';
+		this.ability = null;
     }
 
     setPlayerID(id) {

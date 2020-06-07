@@ -25,7 +25,7 @@ class gameroom {
     // savePlayer(id)
     // getSide(id)
     // getPlayerID(username)
-    // checkWinning() werewolves win: 1, good guys win: 0, not finished: -1
+    // checkWinning() werewolves win: 0, good guys win: 1, not finished: -1
     // init_game() 
     // getWolves()
     // nextNight() 
@@ -44,6 +44,14 @@ class gameroom {
     // getVoteRound() {
     // getMostVoted() {
     // checkIfVoted() {
+    // getAbilityOptions()
+    // getNight() {
+    // setNight(input) {
+    // getVoting() {
+    // setVoting(input) {
+    // setVoteRound(round) {
+    // getKnight() {
+
 
     constructor(room_name, player) {
         this.name = room_name;              // room name: stirng
@@ -52,14 +60,15 @@ class gameroom {
         this.observers = [];                // observer list: player[]
         this.gameType = "default";          // game type: not implemented
         this.started = false;               // indicate if the game has started: bool
-        this.nightNum = 1;                  // i(th) night of the game: int
+        this.nightNum = 0;                  // i(th) night of the game: int
         this.potion = true;                 // if the potion is available: bool
         this.poison = true;                 // if the poison is available: bool
         this.witchFunctioned = false;       // only one potion at night: bool
-        this.playersGotKilled = [];         // players got killed at night: int[]
+        this.playersGotKilled = new Map();  // players got killed at night: map
         this.abilitiesOnProcess = 0;        // how many abilities are being used: int
         this.night = false;                 // if it's night: bool
         this.voting = false;                // if it's voting: bool
+        this.challenged = false;                // if it's voting: bool
         this.voteNum = 0;                   // number of players voted: int
         this.messageque = [
             {
@@ -95,6 +104,109 @@ class gameroom {
         this.votes.set('round', 1);                    // vote dict: dict
     }
 
+    reset() {
+        this.players.forEach(player => player.reset());
+        this.started = false;               // indicate if the game has started: bool
+        this.nightNum = 0;                  // i(th) night of the game: int
+        this.potion = true;                 // if the potion is available: bool
+        this.poison = true;                 // if the poison is available: bool
+        this.witchFunctioned = false;       // only one potion at night: bool
+        this.playersGotKilled = new Map();         // players got killed at night: int[]
+        this.abilitiesOnProcess = 0;        // how many abilities are being used: int
+        this.night = false;                 // if it's night: bool
+        this.voting = false;                // if it's voting: bool
+        this.challenged = false;                // if it's voting: bool
+        this.voteNum = 0;                   // number of players voted: int
+        this.messageque = [
+            {
+                username: 'JUDGE',
+                message: `game restarted`
+            }
+        ];                                  // message que: {username: string, message: string}
+        this.wolfque = [
+            {
+                username: 'JUDGE',
+                message: 'werewolves only now'
+            }
+        ];                                  // wolves message que: {username: string, message: string}
+        this.seerque = [
+            {
+                username: 'JUDGE',
+                message: 'seer only now'
+            }
+        ];                                  // seer message que: {username: string, message: string}
+        this.witchque = [
+            {
+                username: 'JUDGE',
+                message: 'witch only now, wait for the werewolves to make their move'
+            }
+        ];                                  // witch message que: {username: string, message: string}
+        this.cur_players = {
+            total_players: this.players.length,
+            werewolves: 0,
+            villagers: 0,
+            specialCharacters: 0
+        };                                  // current alive players: {int}
+        this.votes = new Map();
+        this.votes.set('round', 1);                    // vote dict: dict
+    }
+
+    getChallenged() {
+        return this.challenged;
+    }
+
+    setChallenged(input) {
+        this.challenged = input;
+    }
+
+    getWitchFunctioned() {
+        return this.witchFunctioned;
+    }
+
+    setWitchFunctioned(input) {
+        this.witchFunctioned = input;
+    }
+
+    setVoteNum() {
+        this.voteNum = this.cur_players.total_players;
+    }
+
+    getNight() {
+        return this.night;
+    }
+
+    setNight(input) {
+        this.night = input;
+    }
+
+    getVoting() {
+        return this.voting;
+    }
+
+    setVoting(input) {
+        this.voting = input;
+    }
+
+    getPlayerByID(id) {
+        for (let i = 0; i < this.players.length; i++) {
+            if (this.players[i].getPlayerID() == id)
+                return this.players[i];
+        }
+        return null;
+    }
+
+    getPlayerByUsername(username) {
+        for (let i = 0; i < this.players.length; i++) {
+            if (this.players[i].getUsername() == username)
+                return this.players[i];
+        }
+        return null;
+    }
+
+    setVoteRound(round) {
+        this.votes.set('round', round);
+    }
+
     getVoteRound() {
         return this.votes.get('round');
     }
@@ -102,9 +214,9 @@ class gameroom {
     getMostVoted() {
         let most = 0;
         let result = [];
-        [ ...this.votes.keys() ].forEach( key => {
+        [...this.votes.keys()].forEach(key => {
             let vote = this.votes.get(key);
-            if (key == 0) continue;
+            if (key == 0 || key == 'round') return;
             if (vote > most) {
                 result = [];
                 result.push(key);
@@ -118,38 +230,46 @@ class gameroom {
     }
 
     checkIfVoted() {
-        let players = this.players.filter(player => (player.isAlive()));
-        if (players.length == this.voteNum) 
+        if (this.voteNum == 0)
             return true;
         else
             return false;
     }
 
     checkAbilitiesStatus() {
-        if (this.abilitiesOnProcess == 0) 
+        if (this.abilitiesOnProcess == 0)
             return true;
-        else   
+        else
             return false;
     }
 
     addAbilitiesOnProcess() {
-        this.abilitiesOnProcess +=1;
+        this.abilitiesOnProcess += 1;
     }
 
     deleteAbilitiesOnProcess() {
-        this.abilitiesOnProcess -=1;
+        this.abilitiesOnProcess -= 1;
     }
 
-    deletePlayerGotKilled(id){
-        this.playersGotKilled = this.playersGotKilled.filter((playerID) => playerID != id);
+    deletePlayerGotKilled(id) {
+        this.playersGotKilled.delete(id);
     }
 
-    addPlayersGotKilled(id) {
-        this.playersGotKilled.push(id);
+    addPlayersGotKilled(id, message) {
+        if (!this.playersGotKilled.has(id))
+            this.playersGotKilled.set(id, message);
     }
 
     getPlayersGotKilled() {
         return this.playersGotKilled;
+    }
+
+    getKnight() {
+        let knight = this.players.filter(player => player.character == "Knight");
+        if (knight) {
+            return knight[0];
+        }
+        return null;
     }
 
     getWitch() {
@@ -168,13 +288,13 @@ class gameroom {
         return null;
     }
 
-    vote(votee_id){
+    vote(votee_id) {
         let vNum = 1;
         if (this.votes.has(votee_id)) {
             vNum = this.votes.get(votee_id) + 1;
         }
         this.votes.set(votee_id, vNum);
-        this.voteNum += 1;
+        this.voteNum -= 1;
     }
 
     usedPoison() {
@@ -218,23 +338,31 @@ class gameroom {
     }
 
     joinPlayer(player) {
-        if (!this.started && this.players.length <= 12) {
+        let playerNames = this.players.map(player => player.getUsername());
+        if (playerNames.includes(player.getUsername())) {
+            this.messageque.push({
+                username: 'JUDGE',
+                message: `${player.username} rejoined the room`
+            });    
+        }
+        else if (!this.started && this.players.length <= 12) {
             player.setPlayerID(this.players.length + 1);
             this.players.push(player);
+            this.messageque.push({
+                username: 'JUDGE',
+                message: `${player.username} joined the room`
+            });    
         }
         else {
+            player.setPlayerID(0);
             this.observers.push(player);
         }
-        this.messageque.push({
-            username: 'JUDGE',
-            message: `${player.username} joined the room`
-        });
     }
 
     deletePlayer(username) {
         this.players = this.players.filter(player => player.username != username);
-        this.players = this.players.map((player,i) => {
-            player.setPlayerID(i+1);
+        this.players = this.players.map((player, i) => {
+            player.setPlayerID(i + 1);
             return player;
         });
         this.messageque.push({
@@ -244,16 +372,27 @@ class gameroom {
         if (username == this.host && this.players.length != 0) {
             this.host = this.players[0].getUsername();
         }
-   }
+    }
 
     getAllPlayerNames() {
         return this.players.map(player => {
             return {
-                name:　`Player ${player.getPlayerID()}: ${player.getUsername()}`,
+                name: `Player ${player.getPlayerID()}: ${player.getUsername()}`,
                 alive: player.isAlive(),
                 id: player.getPlayerID()
             }
         });
+    }
+
+    getAbilityOptions() {
+        return this.players
+            .filter(player => player.isAlive())
+            .map(player => {
+                return {
+                    name: `Player ${player.getPlayerID()}: ${player.getUsername()}`,
+                    id: player.getPlayerID()
+                }
+            });
     }
 
     getMessageQue() {
@@ -307,8 +446,10 @@ class gameroom {
     }
 
     killPlayer(id) {
+        let player = this.players[id - 1];
         this.players[id - 1].getKilled();
-        switch (this.players[id - 1].getSide()) {
+        player.getKilled();
+        switch (player.getSide()) {
             case -1:
                 this.cur_players.werewolves -= 1;
                 break;
@@ -363,7 +504,6 @@ class gameroom {
     init_game() {
         this.started = true;
         this.prepCharacters();
-        // console.log("chars: ", this.cur_players);
         let list = []
         for (let i = 0; i < this.cur_players.total_players; i++) {
             list.push(i);
@@ -372,23 +512,19 @@ class gameroom {
             .map((a) => ({ sort: Math.random(), value: a }))
             .sort((a, b) => a.sort - b.sort)
             .map((a) => a.value)
-        // console.log("characters: ", character);
         for (let i = 0; i < this.cur_players.werewolves; i++) {
             let temp = 1;
             if (i < 1)
                 temp = 0;
             this.players[list.pop()].setCharacter(character.Werewolves[temp]);
         }
-        // console.log("after Werewolf: ", this.players);
         for (let i = 0; i < this.cur_players.villagers; i++) {
             this.players[list.pop()].setCharacter(character.Villager);
         }
-        // console.log("after Villager: ", this.players);
 
         for (let i = 0; i < this.cur_players.specialCharacters; i++) {
             this.players[list.pop()].setCharacter(character.SpecialCharacters[i]);
         }
-        console.log("after init: ", this.players);
 
     }
 
@@ -397,16 +533,16 @@ class gameroom {
         let v = this.cur_players.villagers;
         let s = this.cur_players.specialCharacters;
 
-        if (w == 0) {
-            this.started = false;
-            return 1;
-        }
-        if (v == 0 || s == 0) {
-            this.started = false;
-            return 0;
-        }
-        else {
-            return -1;
+        if (this.gameType == 'default') {
+            if (w == 0) {
+                return 1;
+            }
+            if (v == 0 || s == 0) {
+                return 0;
+            }
+            else {
+                return -1;
+            }
         }
     }
 }

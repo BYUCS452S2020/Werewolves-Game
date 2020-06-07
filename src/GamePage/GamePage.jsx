@@ -109,21 +109,20 @@ function GamePage(props) {
     const [msg, setMsg] = useState('');
     const [players, setPlayers] = useState([]);
     const [player, setPlayer] = useState({ character: 'None' });
-    const [isHost, setIsHost] = useState(false);
     const [gameProcess, setGameProcess] = useState('assign roles');
-    const [night, setNight] = useState(false);
     const [ability, setAbility] = useState(false);
-    const [voting, setVoting] = useState(false);
+    const [options, setOptions] = useState([]);
+    const [gameState, setGameState] = useState(-1); // 0: day, 1: night, 2: voting
 
 
     const handleChange = (event) => {
         // console.log("menu value: ", event.target.value);
-        if (night == null) {
+        if (gameState == -1) {
             return alert("have not started");
         }
 
         if (confirm('Are you sure to choose this player?')) {
-            if (night) {
+            if (gameState == 1 && player) {
                 switch (player.ability) {
                     case "test":
                         socket.seerTest(event.target.value);
@@ -136,26 +135,25 @@ function GamePage(props) {
                         break;
                 }
             }
-            else if (!night && !player.alive) {
+            else if (gameState == 0 && player) {
                 switch (player.ability) {
                     case "revenge":
-                        // socket.seerTest(event.target.value);
+                        socket.revenge(event.target.value);
                         break;
                     case "challenge":
-                        // socket.witchKill(event.target.value);
+                        socket.challenge(event.target.value);
                         break;
                     default:
                         // socket.wolvesKill(event.target.value);
                         break;
                 }
             }
-            else if (voting && !night) {
+            else if (gameState == 2 && player) {
                 socket.vote(event.target.value);
-                setVoting(false);
+                setGameState(0);
             }
             setAbility(false);
         }
-        // setAge(event.target.value);
     };
 
     const handleClose = () => {
@@ -285,13 +283,15 @@ function GamePage(props) {
         handleJoin();
         handlePlayerList();
         handlePlayerInfo();
-        handleIsHost();
         handleGameProceeds();
         handleWolfKill();
         handleWitchKill();
         handleSeerTest();
         handleWitchSave();
+        handleRevenge();
+        handleChallenge();
         handleVoting();
+        handleOptions();
     }, []);
 
     function handleMsgQue() {
@@ -315,25 +315,35 @@ function GamePage(props) {
         })
     }
 
-    function handleIsHost() {
-        socket.getIsHostHandler(data => {
-            setIsHost(data);
-            console.log('is host: ', data);
+    function handleOptions() {
+        socket.getOptionsHandler(options => {
+            if (!options) {
+                setAbility(false);
+                return;
+            }
+            setOptions(options);
+            console.log('options: ', options);
         })
     }
+
     function handleGameProceeds() {
-        socket.getProcessHandler((gameProcess, nightB) => {
+        socket.getProcessHandler((gameProcess) => {
             if (gameProcess == 'into the night') {
                 setAbility(false);
-                setNight(true);
-                setVoting(false);
+            }
+            if (gameProcess == 'during night') {
+                setGameState(1);
             }
             else if (gameProcess == 'Starting the day') {
-                setNight(false);
+                setGameState(0);
             }
-            else if (gameProcess == 'start voting') {
+            else if (gameProcess == 'voting') {
                 setAbility(true);
-                setVoting(true);
+                setGameState(2);
+            }
+            else if (gameProcess == 'restart') {
+                setGameState(0)
+                setAbility(false);
             }
             setGameProcess(gameProcess);
         });
@@ -343,7 +353,6 @@ function GamePage(props) {
         socket.getWolvesKillHandler(() => {
             setAbility(true);
         })
-
     }
 
     function handleWitchKill() {
@@ -352,15 +361,28 @@ function GamePage(props) {
         })
     }
 
+    function handleRevenge() {
+        socket.getRevengeHandler(() => {
+            setAbility(true);
+        })
+    }
+
+    function handleChallenge() {
+        socket.getChallengeHandler(() => {
+            console.log('knight: ', player);
+            setAbility(true);
+        })
+    }
+
     function handleWitchSave() {
         socket.getWitchSaveHandler((id) => {
-            console.log(`Player ${id} has been attacked. Do you want to save him?`);
-
             if (confirm(`Player ${id} has been attacked. Do you want to save him?`)) {
                 socket.witchSave(id);
+                setAbility(false);
             }
-            else
+            else {
                 socket.witchSave(0);
+            }
         })
     }
 
@@ -373,26 +395,22 @@ function GamePage(props) {
     function handleVoting() {
         socket.getVotingHandler(() => {
             setAbility(true);
-            setVoting(true);
         })
     }
 
 
     const handleSubmit = e => {
         e.preventDefault();
-        if (!msg) {
+        if (!msg)
             return alert("msg can't be empty");
-        }
-        if (!player.alive) {
+        else if (!player.alive)
             return alert("dead man can't message");
-        }
-        // console.log("night: ", night);
-        if (night && player.side == -1) {
+        else if (gameState == 2)
+            return alert("can't message during voting");
+        else if (gameState == 1 && player.side == -1)
             socket.sendWolfMsg(msg);
-        }
-        else if (!night) {
+        else
             socket.sendChatMsg(msg);
-        }
         setMsg('');
         e.target.reset();
     };
@@ -407,20 +425,22 @@ function GamePage(props) {
             socket.assignRoles();
         }
         else if (gameProcess == 'into the night') {
-            console.log("into the night", night);
+            console.log("into the night", gameState);
             socket.intoTheNight();
         }
         else if (gameProcess == 'Starting the day') {
-            console.log("out of the night", !night);
+            console.log("out of the night", gameState);
             socket.startingTheDay();
         }
         else if (gameProcess == 'start voting') {
-            console.log("start voting", !night);
+            console.log("start voting", gameState);
             socket.startingVote();
         }
+        else if (gameProcess == 'restart') {
+            console.log("restarting", gameState);
+            socket.restart();
+        }
     }
-
-
 
 
     return (
@@ -431,7 +451,7 @@ function GamePage(props) {
             </button>
 
             {/* start button */}
-            {isHost &&
+            {player.player_id == 1 &&
                 <button className="btn btn-primary" style={startButton} type="button" onClick={game_proceeds}>
                     <div style={logOut2} >{gameProcess}</div>
                 </button>
@@ -442,7 +462,7 @@ function GamePage(props) {
             <h1 style={redH1}>{user.username}'s Character: {player.character}</h1>
 
             {/* Ability drop down */}
-            {ability &&
+            {player.alive && ability &&
                 <div>
                     <FormControl className={classes.formControl}>
                         <InputLabel style={whiteText} id="demo-controlled-open-select-label">Abilities</InputLabel>
@@ -453,18 +473,15 @@ function GamePage(props) {
                             onClose={handleClose}
                             onOpen={handleOpen}
                             // value={age}
-                            onChange={handleChange}
-                        >
+                            onChange={handleChange}>
                             <MenuItem value={0}>
                                 <div>None</div>
                             </MenuItem>
-                            {players.map((player) => {
-                                if (player.alive) {
-                                    return (<MenuItem value={player.id}>
-                                        <div>{player.name}</div>
-                                    </MenuItem>)
-                                }
-                            })}
+                            {options.map((player) =>
+                                (<MenuItem value={player.id}>
+                                    <div>{player.name}</div>
+                                </MenuItem>)
+                            )}
                         </Select>
                         <button className="btn btn-primary" style={startButton} type="button" onClick={game_proceeds}>
                             <div style={logOut2} >{gameProcess}</div>

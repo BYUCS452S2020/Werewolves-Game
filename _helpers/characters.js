@@ -2,14 +2,12 @@ module.exports = {
     Werewolves: [
         {
             name: "Alpha Werewolf",
-            ability: "kill_revenge",
-            ability_time: 2,
+            ability: "revenge",
             side: -1
         },
         {
             name: "Werewolf",
             ability: "kill",
-            ability_time: 0,
             side: -1
         },
 
@@ -17,32 +15,27 @@ module.exports = {
     Villager: {
         name: "Villager",
         ability: null,
-        ability_time: 1,
         side: 0
     },
     SpecialCharacters: [
         {
-            name: "Witch",
-            ability: "save_posion",
-            ability_time: 0,
-            side: 1
-        },
-        {
-            name: "Seer",
-            ability: "test",
-            ability_time: 0,
+            name: "Knight",
+            ability: "challenge",
             side: 1
         },
         {
             name: "Hunter",
             ability: "revenge",
-            ability_time: 1,
             side: 1
         },
         {
-            name: "Knight",
-            ability: "challenge",
-            ability_time: 1,
+            name: "Witch",
+            ability: "save_posion",
+            side: 1
+        },
+        {
+            name: "Seer",
+            ability: "test",
             side: 1
         },
 

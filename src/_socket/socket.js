@@ -20,10 +20,6 @@ export default function () {
         socket.on("player info", cb);
     }
 
-    function getIsHostHandler(cb) {
-        socket.on("is host", cb);
-    }
-
     function getProcessHandler(cb) {
         socket.on('game proceeds', cb);
     }
@@ -44,8 +40,20 @@ export default function () {
         socket.on('seer test', cb);
     }
 
+    function getRevengeHandler(cb) {
+        socket.on('revenge', cb);
+    }
+
+    function getChallengeHandler(cb) {
+        socket.on('challenge', cb);
+    }
+
     function getVotingHandler(cb) {
         socket.on('voting', cb);
+    }
+
+    function getOptionsHandler(cb) {
+        socket.on('options', cb);
     }
 
     function sendChatMsg(msg) {
@@ -92,6 +100,14 @@ export default function () {
         socket.emit('seer test', id);
     }
 
+    function revenge(id) {
+        socket.emit('revenge', id);
+    }
+
+    function challenge(id) {
+        socket.emit('challenge', id);
+    }
+
     function startingTheDay() {
         socket.emit('starting the day');
     }
@@ -103,6 +119,10 @@ export default function () {
     function vote(id) {
         socket.emit('voting', id);
     }
+
+    function restart() {
+        socket.emit('restart');
+    }
     
 
     return {
@@ -110,13 +130,15 @@ export default function () {
         getMsgQueHandler,
         getPlayersHandler,
         getPlayerInfoHandler,
-        getIsHostHandler,
         getProcessHandler,
         getWitchSaveHandler,
         getWolvesKillHandler,
         getWitchKillHandler,
         getSeerTestHandler,
+        getRevengeHandler,
+        getChallengeHandler,
         getVotingHandler,
+        getOptionsHandler,
         sendChatMsg,
         sendWolfMsg,
         leave,
@@ -128,8 +150,11 @@ export default function () {
         witchSave,
         witchKill,
         seerTest,
+        revenge,
+        challenge,
         startingTheDay,
         startingVote,
-        vote
+        vote,
+        restart
     }
 }
