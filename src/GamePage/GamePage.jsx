@@ -351,18 +351,21 @@ function GamePage(props) {
 
     function handleWolfKill() {
         socket.getWolvesKillHandler(() => {
+            console.log('wolf: ', player);
             setAbility(true);
         })
     }
 
     function handleWitchKill() {
         socket.getWitchKillHandler(() => {
+            console.log('witch: ', player);
             setAbility(true);
         })
     }
 
     function handleRevenge() {
         socket.getRevengeHandler(() => {
+            console.log('revenge: ', player);
             setAbility(true);
         })
     }
@@ -388,6 +391,7 @@ function GamePage(props) {
 
     function handleSeerTest() {
         socket.getSeerTestHandler(() => {
+            console.log('seer: ', player);
             setAbility(true);
         })
     }
