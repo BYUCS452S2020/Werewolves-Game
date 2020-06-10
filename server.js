@@ -20,6 +20,8 @@ app.use(jwt());
 
 // api routes
 app.use('/users', require('./users/users.controller'));
+const character = require('./characters/character.service');
+character.setup();
 require('./socket/gameSocket')(app);
 // require('./server/routes/character.route')(app);
 // require('./server/routes/user.route')(app);

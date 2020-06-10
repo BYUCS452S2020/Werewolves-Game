@@ -4,6 +4,7 @@ module.exports = app => {
     var GameRoom = require('./gameroom');
     var Player = require('./player');
 
+    var GameRoomDB = require('../gamerooms/gameroom.service');
     // roomManager: room_name, gameroom
     let roomManager = new Map();
     // userroom: username, gameroom
@@ -62,6 +63,9 @@ module.exports = app => {
                 io.emit('RECEIVE_ROOM', rooms);
                 socket.emit('message que', gameroom.getMessageQue());
                 socket.emit('get players', gameroom.getAllPlayerNames());
+                
+                let dbInput = { name: room };
+                GameRoomDB.create(dbInput);
                 // socket.emit('is host', true);
             }
             // Room Already Created
@@ -502,7 +506,7 @@ module.exports = app => {
                 return;
             }
             // activate the morning character's ability
-            if (gameroom.getChallenged()) {
+            if (!gameroom.getChallenged()) {
                 let knight = gameroom.getKnight();
                 console.log('knight: ', knight);
                 let s_id = usermap.get(knight.getUsername());
@@ -701,6 +705,7 @@ module.exports = app => {
                 // check if anyone left
                 if (gameroom.isEmpty()) {
                     roomManager.delete(gameroom.getRoomName());
+                    GameRoomDB.delete(gameroom.getRoomName());
                 }
                 else {
                     // socket.broadcast.to(usermap.get(gameroom.getHost())).emit('is host', true);
@@ -727,6 +732,7 @@ module.exports = app => {
                 // check if anyone left
                 if (gameroom.isEmpty()) {
                     roomManager.delete(gameroom.getRoomName());
+                    GameRoomDB.delete(gameroom.getRoomName());
                 }
                 else {
                     // socket.broadcast.to(usermap.get(gameroom.getHost())).emit('is host', true);
