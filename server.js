@@ -20,7 +20,7 @@ app.use(jwt());
 
 // api routes
 app.use('/users', require('./users/users.controller'));
-require('./lobby')(app);
+require('./socket/gameSocket')(app);
 // require('./server/routes/character.route')(app);
 // require('./server/routes/user.route')(app);
 // require('./server/routes/gameroom')(app);
